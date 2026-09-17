@@ -14,6 +14,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+// 生成token
 func GenerateJWT(userId int, userName string, role string) (string, error) {
 	var key = []byte(config.Config.GetString("key"))
 	claims := Claims{

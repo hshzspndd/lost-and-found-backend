@@ -8,6 +8,7 @@ import (
 
 var Config = viper.New()
 
+// 加载配置文件
 func LoadConfig() {
 	Config.SetConfigName("config")
 	Config.SetConfigType("yaml")

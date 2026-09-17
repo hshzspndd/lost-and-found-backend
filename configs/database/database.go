@@ -10,6 +10,7 @@ import (
 
 var DB *gorm.DB
 
+// 数据库初始化
 func InitDB() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		config.Config.GetString("database.user"),
@@ -19,6 +20,7 @@ func InitDB() {
 		config.Config.GetString("database.dbname"),
 	)
 
+	// 连接数据库
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err.Error())

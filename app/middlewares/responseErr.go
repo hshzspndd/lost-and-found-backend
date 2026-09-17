@@ -2,6 +2,7 @@ package middlewares
 
 import "github.com/gin-gonic/gin"
 
+// 响应格式
 type ResponseForm struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -20,6 +21,7 @@ func GetError(code int, message string) *ResponseForm {
 	}
 }
 
+// 全局异常统一响应
 func GlobalResponseError(c *gin.Context) {
 	c.Next()
 	if len(c.Errors) > 0 {

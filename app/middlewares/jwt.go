@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// 从Header获取token并提取用户信息
 func ParseJwt() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorization := c.GetHeader("Authorization")
