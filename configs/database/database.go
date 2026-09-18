@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"lost-and-found-backend/app/models"
 	"lost-and-found-backend/configs/config"
 
 	"gorm.io/driver/mysql"
@@ -20,11 +21,16 @@ func InitDB() {
 		config.Config.GetString("database.dbname"),
 	)
 
-	// 连接数据库
+	//连接数据库
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err.Error())
+		panic("数据库连接失败")
 	}
 
+	//创建用户数据表
+	err = db.AutoMigrate(models.User{})
+	if err != nil {
+		panic("数据表创建失败")
+	}
 	DB = db
 }
