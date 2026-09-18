@@ -9,9 +9,10 @@ import (
 )
 
 type RegisterData struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Role     string `json:"role" binding:"required"`
+	Username   string `json:"username" binding:"required"`
+	Password   string `json:"password" binding:"required"`
+	Role       string `json:"role" binding:"required,oneof=系统管理员 失物招领管理员 普通用户"`
+	InviteCode string `json:"invite_code"`
 }
 
 type ResponseRegisterData struct {
@@ -31,7 +32,7 @@ func Register(c *gin.Context) {
 	}
 
 	// 尝试将用户信息存入数据库
-	user, err := services.Register(registerData.Username, registerData.Password, registerData.Role) // 返回包含用户id的用户信息以及发生的错误
+	user, err := services.Register(registerData.Username, registerData.Password, registerData.Role, registerData.InviteCode) // 返回包含用户id的用户信息以及发生的错误
 	if err != nil {
 		errResponse, ok := err.(*services.ResponseErrorForm)
 		if ok {
@@ -39,6 +40,7 @@ func Register(c *gin.Context) {
 			c.Abort()
 			return
 		}
+		return
 	}
 
 	// 注册成功
