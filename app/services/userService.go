@@ -71,3 +71,8 @@ func GetUserByPhoneNum(phoneNum string) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+// 校对密码
+func ComparePassword(pwd1 string, pwd2 string) bool {
+	return pwd1 == pwd2
+}
