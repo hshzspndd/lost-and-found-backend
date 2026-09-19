@@ -22,11 +22,6 @@ func CheckRegisterUserExists(username string) (bool, error) {
 	return true, nil
 }
 
-func CheckUserExistsByPhoneNum(phoneNum string) error { //登录时用电话号检查用户是否已存在
-	result := database.DB.Where("phone_num = ?", phoneNum).First(&models.User{})
-	return result.Error
-}
-
 // 注册用户，将用户信息存入数据库
 func Register(username string, password string, role string, inviteCode string) (*models.User, error) {
 	var user models.User
@@ -59,4 +54,20 @@ func Register(username string, password string, role string, inviteCode string) 
 	}
 
 	return &user, nil //注册成功
+}
+
+// 登录时用电话号检查用户是否已存在
+func CheckUserExistsByPhoneNum(phoneNum string) error {
+	result := database.DB.Where("phone_num = ?", phoneNum).First(&models.User{})
+	return result.Error
+}
+
+// 获取用户信息
+func GetUserByPhoneNum(phoneNum string) (*models.User, error) {
+	var user models.User
+	result := database.DB.Where("phone_num = ?", phoneNum).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
 }
