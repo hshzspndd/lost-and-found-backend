@@ -18,7 +18,7 @@ func InitDB() {
 		config.Config.GetString("database.password"),
 		config.Config.GetString("database.host"),
 		config.Config.GetInt("database.port"),
-		config.Config.GetString("database.dbname"),
+		config.Config.GetString("database.DBname"),
 	)
 
 	//连接数据库
