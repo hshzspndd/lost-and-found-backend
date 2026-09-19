@@ -14,9 +14,10 @@ func LoadConfig() {
 	Config.SetConfigType("yaml")
 	Config.AddConfigPath(".")
 	Config.AddConfigPath("./configs")
+	Config.WatchConfig() //支持热更新
+
 	err := Config.ReadInConfig()
 	if err != nil {
 		log.Fatalf("读取配置文件失败")
 	}
-	log.Println("配置文件读取成功")
 }
