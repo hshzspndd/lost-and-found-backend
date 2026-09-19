@@ -27,8 +27,8 @@ func InitDB() {
 		panic("数据库连接失败")
 	}
 
-	//创建用户数据表
-	err = db.AutoMigrate(models.User{})
+	//创建用户和联系人数据表
+	err = db.AutoMigrate(&models.User{}, &models.Contact{})
 	if err != nil {
 		panic("数据表创建失败")
 	}
