@@ -9,20 +9,20 @@ import (
 
 type Claims struct {
 	UserId   int
-	UserName string
+	Username string
 	Role     string
 	jwt.RegisteredClaims
 }
 
 // 生成token
-func GenerateJWT(userId int, userName string, role string) (string, error) {
-	var key = []byte(config.Config.GetString("key"))
+func GenerateJWT(userId int, username string, role string) (string, error) {
+	var key = []byte(config.Config.GetString("jwt.key"))
 	claims := Claims{
 		UserId:   userId,
-		UserName: userName,
+		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    config.Config.GetString("issuer"),
+			Issuer:    config.Config.GetString("jwt.issuer"),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(2 * time.Hour)),
 		},
 	}

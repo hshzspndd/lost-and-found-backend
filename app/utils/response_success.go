@@ -3,9 +3,9 @@ package utils
 import "github.com/gin-gonic/gin"
 
 type ResponseSuccessForm struct {
-	Code    int
-	Message string
-	Data    interface{}
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 // 将成功响应打包成函数

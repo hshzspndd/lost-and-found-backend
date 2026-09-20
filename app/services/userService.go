@@ -6,73 +6,90 @@ import (
 	"lost-and-found-backend/configs/config"
 	"lost-and-found-backend/configs/database"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-// 注册时检查用户是否已存在
-func CheckRegisterUserExists(username string) (bool, error) {
+// 注册时检查用户名或手机号是否已存在
+func CheckRegisterUserExists(username string, phoneNum string) (bool, error) {
 	var user models.User
-	err := database.DB.Model(&models.User{}).Where("username = ?", username).First(&user).Error
+	err := database.DB.Model(&models.User{}).Where("username = ? OR phone_num = ?", username, phoneNum).First(&user).Error
 	if err == gorm.ErrRecordNotFound {
 		return false, nil
 	}
 	if err != nil {
-		return true, err
+		return false, err
 	}
 	return true, nil
 }
 
 // 注册用户，将用户信息存入数据库
-func Register(username string, password string, role string, inviteCode string) (*models.User, error) {
+func Register(username string, phoneNum string, password string, role string, inviteCode string) (*models.User, error) {
 	var user models.User
 	//根据邀请码判断是否有权限注册管理员
 	if role == "系统管理员" || role == "失物招领管理员" {
 		if inviteCode != config.Config.GetString("register.admin_invite_code") {
-			return &models.User{}, ErrNoPermission
+			return nil, ErrNoPermission
 		}
 	}
 
-	userExists, err := CheckRegisterUserExists(username)
+	userExists, err := CheckRegisterUserExists(username, phoneNum)
 	if err != nil {
-		return &models.User{}, ErrUserCheckFail //用户信息校验失败
+		return nil, ErrUserCheckFail //用户信息校验失败
 	}
 	if userExists {
-		return &models.User{}, ErrUserExists //用户已存在
+		return nil, ErrUserExists //用户已存在
 	}
 
 	hashpassword, err := utils.HashPassword(password)
 	if err != nil {
-		return &models.User{}, ErrHashPassword //密码加密失败
+		return nil, ErrHashPassword //密码加密失败
 	}
 
 	user.Username = username
+	user.PhoneNum = phoneNum
 	user.Password = hashpassword
 	user.Role = role
 	err = database.DB.Model(&models.User{}).Create(&user).Error
 	if err != nil {
-		return &models.User{}, ErrDatabase //存储失败
+		return nil, ErrDatabase //存储失败
 	}
 
 	return &user, nil //注册成功
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------
 // 登录时用电话号检查用户是否已存在
-func CheckUserExistsByPhoneNum(phoneNum string) error {
-	result := database.DB.Where("phone_num = ?", phoneNum).First(&models.User{})
-	return result.Error
-}
-
-// 获取用户信息
-func GetUserByPhoneNum(phoneNum string) (*models.User, error) {
+func CheckUserExistsByPhoneNum(phoneNum string) (*models.User, error) {
 	var user models.User
-	result := database.DB.Where("phone_num = ?", phoneNum).First(&user)
-	if result.Error != nil {
-		return nil, result.Error
+	err := database.DB.Where("phone_num = ?", phoneNum).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, ErrUserNotFound
+	} else if err != nil {
+		return nil, ErrDatabase
+	} else {
+		return &user, nil
 	}
-	return &user, nil
 }
 
 // 校对密码
-func ComparePassword(pwd1 string, pwd2 string) bool {
-	return pwd1 == pwd2
+func CheckPassword(hashedPassword string, inputPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(inputPassword))
+	return err == nil
+}
+
+// 登录
+func Login(phoneNum string, password string) (*models.User, error) {
+	user, err := CheckUserExistsByPhoneNum(phoneNum)
+	if err != nil {
+		return nil, err
+	}
+
+	result := CheckPassword(user.Password, password)
+	if !result {
+		return nil, ErrWrongPassword
+	}
+
+	return user, nil
+
 }
