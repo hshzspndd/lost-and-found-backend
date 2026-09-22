@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"lost-and-found-backend/app/services"
+	"lost-and-found-backend/app/errs"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +22,7 @@ func (e *ResponseForm) Error() string {
 func GlobalResponseError(c *gin.Context) {
 	c.Next()
 	if len(c.Errors) > 0 {
-		if err, ok := c.Errors.Last().Err.(*services.ResponseErrorForm); ok {
+		if err, ok := c.Errors.Last().Err.(*errs.ResponseErrorForm); ok {
 			c.JSON(err.HTTPCode, ResponseForm{
 				Code:    err.Code,
 				Message: err.Message,

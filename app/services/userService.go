@@ -1,6 +1,7 @@
 package services
 
 import (
+	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/models"
 	"lost-and-found-backend/app/utils"
 	"lost-and-found-backend/configs/config"
@@ -29,21 +30,21 @@ func Register(username string, phoneNum string, password string, role string, in
 	//根据邀请码判断是否有权限注册管理员
 	if role == "系统管理员" || role == "失物招领管理员" {
 		if inviteCode != config.Config.GetString("register.admin_invite_code") {
-			return nil, ErrNoPermission
+			return nil, errs.ErrNoPermission
 		}
 	}
 
 	userExists, err := CheckRegisterUserExists(username, phoneNum)
 	if err != nil {
-		return nil, ErrUserCheckFail //用户信息校验失败
+		return nil, errs.ErrUserCheckFail //用户信息校验失败
 	}
 	if userExists {
-		return nil, ErrUserExists //用户已存在
+		return nil, errs.ErrUserExists //用户已存在
 	}
 
 	hashpassword, err := utils.HashPassword(password)
 	if err != nil {
-		return nil, ErrHashPassword //密码加密失败
+		return nil, errs.ErrHashPassword //密码加密失败
 	}
 
 	user.Username = username
@@ -52,21 +53,21 @@ func Register(username string, phoneNum string, password string, role string, in
 	user.Role = role
 	err = database.DB.Model(&models.User{}).Create(&user).Error
 	if err != nil {
-		return nil, ErrDatabase //存储失败
+		return nil, errs.ErrDatabase //存储失败
 	}
 
 	return &user, nil //注册成功
 }
 
-// ---------------------------------------------------------------------------------------------------------------------------
+// ============================================================================================
 // 登录时用电话号检查用户是否已存在
 func CheckUserExistsByPhoneNum(phoneNum string) (*models.User, error) {
 	var user models.User
 	err := database.DB.Where("phone_num = ?", phoneNum).First(&user).Error
 	if err == gorm.ErrRecordNotFound {
-		return nil, ErrUserNotFound
+		return nil, errs.ErrUserNotFound
 	} else if err != nil {
-		return nil, ErrDatabase
+		return nil, errs.ErrDatabase
 	} else {
 		return &user, nil
 	}
@@ -87,7 +88,7 @@ func Login(phoneNum string, password string) (*models.User, error) {
 
 	result := CheckPassword(user.Password, password)
 	if !result {
-		return nil, ErrWrongPassword
+		return nil, errs.ErrWrongPassword
 	}
 
 	return user, nil

@@ -1,6 +1,7 @@
 package userController
 
 import (
+	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 
@@ -27,7 +28,7 @@ func Register(c *gin.Context) {
 	var registerData RegisterData
 	err := c.ShouldBindJSON(&registerData)
 	if err != nil {
-		c.Error(services.ErrBindJSON)
+		c.Error(errs.ErrBindJSON)
 		c.Abort()
 		return
 	}

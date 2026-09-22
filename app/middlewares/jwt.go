@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"lost-and-found-backend/app/services"
+	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/utils"
 	"lost-and-found-backend/configs/config"
 	"strings"
@@ -16,7 +16,7 @@ func ParseJwt() gin.HandlerFunc {
 		authorization := c.GetHeader("Authorization")
 		authorizationList := strings.SplitN(authorization, " ", 2)
 		if len(authorizationList) != 2 || authorizationList[0] != "Bearer" {
-			c.Error(services.ErrUnauthorized)
+			c.Error(errs.ErrUnauthorized)
 			c.Abort()
 			return
 		}
@@ -25,7 +25,7 @@ func ParseJwt() gin.HandlerFunc {
 			return []byte(config.Config.GetString("jwt.key")), nil
 		})
 		if err != nil {
-			c.Error(services.ErrInvalidToken)
+			c.Error(errs.ErrInvalidToken)
 			c.Abort()
 			return
 		}
