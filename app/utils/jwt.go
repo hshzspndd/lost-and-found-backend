@@ -8,17 +8,17 @@ import (
 )
 
 type Claims struct {
-	UserId   int
+	UserID   int
 	Username string
 	Role     string
 	jwt.RegisteredClaims
 }
 
 // 生成token
-func GenerateJWT(userId int, username string, role string) (string, error) {
+func GenerateJWT(userID int, username string, role string) (string, error) {
 	var key = []byte(config.Config.GetString("jwt.key"))
 	claims := Claims{
-		UserId:   userId,
+		UserID:   userID,
 		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
