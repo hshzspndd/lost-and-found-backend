@@ -46,7 +46,7 @@ func GetProfile(c *gin.Context) {
 //==============================================================================================================
 
 // 修改用户个人信息
-func UpdatePeofile(c *gin.Context) {
+func UpdateProfile(c *gin.Context) {
 	var updateProfileData UpdateProfileData
 	err := c.ShouldBindJSON(&updateProfileData)
 	if err != nil {
