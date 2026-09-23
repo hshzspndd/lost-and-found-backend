@@ -42,7 +42,7 @@ func Register(c *gin.Context) {
 
 	// 注册成功
 	utils.ResponseSuccess(c, ResponseRegisterData{
-		UserId:   user.UserId,
+		UserId:   user.UserID,
 		Username: user.Username,
 		PhoneNum: user.PhoneNum,
 		Role:     user.Role,
