@@ -15,4 +15,11 @@ func Router(c *gin.Engine) {
 		api.POST("/register", user_controller.Register) //注册
 		api.POST("/login", user_controller.Login)       //登录
 	}
+
+	//jwt鉴权路由组
+	auth := api.Group("/")
+	auth.Use(middlewares.ParseJwt())
+	{
+		auth.GET("/user/profile", user_controller.GetProfile)
+	}
 }

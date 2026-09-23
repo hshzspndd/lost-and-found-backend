@@ -29,6 +29,21 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	utils.ResponseSuccess(c, user)
+	token, err := utils.GenerateJWT(int(user.UserID), user.Username, user.Role)
+	if err != nil {
+		c.Error(services.ErrUnauthorized)
+		c.Abort()
+		return
+	}
 
+	type LoginResp struct {
+		Token string `json:"token"`
+		User  any    `json:"user"`
+	}
+	resp := LoginResp{
+		Token: token,
+		User:  user,
+	}
+
+	utils.ResponseSuccess(c, resp)
 }

@@ -24,7 +24,7 @@ func ParseJwt() gin.HandlerFunc {
 		token, err := jwt.ParseWithClaims(tokenString, &utils.Claims{}, func(t *jwt.Token) (any, error) {
 			return []byte(config.Config.GetString("jwt.key")), nil
 		})
-		if err != nil {
+		if err != nil || !token.Valid {
 			c.Error(services.ErrInvalidToken)
 			c.Abort()
 			return
