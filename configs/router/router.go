@@ -13,6 +13,6 @@ func Router(c *gin.Engine) {
 	api.Use(middlewares.GlobalResponseError)
 	{
 		api.POST("/register", userController.Register) //注册
-		api.POST("/login", userController.Login)
+		api.POST("/login", userController.Login)       //登录
 	}
 }
