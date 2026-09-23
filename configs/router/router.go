@@ -21,5 +21,6 @@ func Router(c *gin.Engine) {
 	auth.Use(middlewares.ParseJwt())
 	{
 		auth.GET("/user/profile", user_controller.GetProfile)
+		auth.PATCH("/user/profile", user_controller.UpdateProfile)
 	}
 }
