@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// 注册时检查用户名或手机号是否已存在
+// 检查用户名或手机号是否已存在
 func CheckRegisterUserExists(username string, phoneNum string) (bool, error) {
 	var user models.User
 	err := database.DB.Model(&models.User{}).Where("username = ? OR phone_num = ?", username, phoneNum).First(&user).Error
@@ -59,7 +59,7 @@ func Register(username string, phoneNum string, password string, role string, in
 	return &user, nil //注册成功
 }
 
-// ---------------------------------------------------------------------------------------------------------------------------
+// ==============================================================================================================
 // 登录时用电话号检查用户是否已存在
 func CheckUserExistsByPhoneNum(phoneNum string) (*models.User, error) {
 	var user models.User
@@ -93,4 +93,69 @@ func Login(phoneNum string, password string) (*models.User, error) {
 
 	return user, nil
 
+}
+
+// ==============================================================================================================
+
+// 检查修改后的用户名或手机号是否已存在
+func CheckUserExists(userID int, username string, phoneNum string) (bool, error) {
+	var user models.User
+	err := database.DB.Model(&models.User{}).Where("(username = ? OR phone_num = ?) AND user_id != ?", username, phoneNum, userID).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// 获取用户个人信息
+func GetProfile(userID int) (*models.User, error) {
+	var user models.User
+	err := database.DB.Model(&models.User{}).Where("user_id = ?", userID).First(&user).Error
+	if err != nil {
+		return nil, errs.ErrDatabase
+	}
+
+	return &user, nil
+}
+
+// 修改用户个人信息
+func UpdateProfile(userID int, username string, phoneNum string) (*models.User, error) {
+	var user models.User
+
+	//检查用户名或手机号是否已存在
+	userExists, err := CheckUserExists(userID, username, phoneNum)
+	if err != nil {
+		return nil, errs.ErrDatabase
+	}
+	if userExists {
+		return nil, errs.ErrUserExists
+	}
+
+	updateUser := make(map[string]interface{})
+	if username != "" {
+		updateUser["username"] = username
+	}
+	if phoneNum != "" {
+		updateUser["phone_num"] = phoneNum
+	}
+
+	//更新用户信息
+	err = database.DB.Model(&models.User{}).Where("user_id = ?", userID).Updates(updateUser).Error
+	if err != nil {
+		return nil, errs.ErrDatabase
+	}
+
+	//查询更新后的用户信息
+	err = database.DB.Model(&models.User{}).Where("user_id = ?", userID).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, errs.ErrUserNotFound
+	}
+	if err != nil {
+		return nil, errs.ErrDatabase
+	}
+
+	return &user, nil
 }
