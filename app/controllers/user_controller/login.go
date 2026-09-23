@@ -39,7 +39,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, expiredAt, err := utils.GenerateJWT(user.UserID, user.Username, user.Role)
+	token, expiresAt, err := utils.GenerateJWT(user.UserID, user.Username, user.Role)
 	if err != nil {
 		c.Error(errs.ErrGenerateToken)
 		c.Abort()
@@ -48,7 +48,7 @@ func Login(c *gin.Context) {
 
 	resp := LoginResp{
 		Token:     token,
-		ExpiredAt: expiredAt,
+		ExpiredAt: expiresAt,
 		UserID:    user.UserID,
 		Username:  user.Username,
 		Role:      user.Role,
