@@ -29,7 +29,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateJWT(int(user.UserID), user.Username, user.Role)
+	token, err := utils.GenerateJWT(user.UserID, user.Username, user.Role)
 	if err != nil {
 		c.Error(services.ErrUnauthorized)
 		c.Abort()
