@@ -18,13 +18,13 @@ func InitDB() {
 		config.Config.GetString("database.password"),
 		config.Config.GetString("database.host"),
 		config.Config.GetInt("database.port"),
-		config.Config.GetString("database.dbname"),
+		config.Config.GetString("database.DBname"),
 	)
 
 	//连接数据库
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("数据库连接失败")
+		fmt.Println(err)
 	}
 
 	//创建用户和联系人数据表

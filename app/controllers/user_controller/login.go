@@ -1,8 +1,10 @@
 package user_controller
 
 import (
+	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,11 +15,19 @@ type LoginData struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type LoginResp struct {
+	Token     string    `json:"token"`
+	ExpiredAt time.Time `json:"expired_at"`
+	UserID    int       `json:"user_id"`
+	Username  string    `json:"username"`
+	Role      string    `json:"role"`
+}
+
 func Login(c *gin.Context) {
 	var data LoginData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		c.Error(services.ErrBindJSON)
+		c.Error(errs.ErrBindJSON)
 		c.Abort()
 		return
 	}
@@ -29,20 +39,19 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateJWT(user.UserID, user.Username, user.Role)
+	token, expiredAt, err := utils.GenerateJWT(user.UserID, user.Username, user.Role)
 	if err != nil {
-		c.Error(services.ErrUnauthorized)
+		c.Error(errs.ErrGenerateToken)
 		c.Abort()
 		return
 	}
 
-	type LoginResp struct {
-		Token string `json:"token"`
-		User  any    `json:"user"`
-	}
 	resp := LoginResp{
-		Token: token,
-		User:  user,
+		Token:     token,
+		ExpiredAt: expiredAt,
+		UserID:    user.UserID,
+		Username:  user.Username,
+		Role:      user.Role,
 	}
 
 	utils.ResponseSuccess(c, resp)
