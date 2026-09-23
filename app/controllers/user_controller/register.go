@@ -1,6 +1,7 @@
 package user_controller
 
 import (
+	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 
@@ -15,7 +16,7 @@ type RegisterData struct {
 	InviteCode string `json:"invite_code"`
 }
 
-type ResponseRegisterData struct {
+type RegisterResp struct {
 	UserId   int    `json:"user_id"`
 	Username string `json:"username"`
 	PhoneNum string `json:"phone_num"`
@@ -27,7 +28,7 @@ func Register(c *gin.Context) {
 	var registerData RegisterData
 	err := c.ShouldBindJSON(&registerData)
 	if err != nil {
-		c.Error(services.ErrBindJSON)
+		c.Error(errs.ErrBindJSON)
 		c.Abort()
 		return
 	}
@@ -40,12 +41,14 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// 注册成功
-	utils.ResponseSuccess(c, ResponseRegisterData{
+	resp := RegisterResp{
 		UserId:   user.UserID,
 		Username: user.Username,
 		PhoneNum: user.PhoneNum,
 		Role:     user.Role,
-	})
+	}
+
+	// 注册成功
+	utils.ResponseSuccess(c, resp)
 
 }
