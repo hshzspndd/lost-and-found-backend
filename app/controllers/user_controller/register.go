@@ -1,4 +1,4 @@
-package userController
+package user_controller
 
 import (
 	"lost-and-found-backend/app/services"
