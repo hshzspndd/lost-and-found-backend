@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
+//================================================== 注册 ==================================================
+
 // 检查用户名或手机号是否已存在
 func CheckRegisterUserExists(username string, phoneNum string) (bool, error) {
 	var user models.User
@@ -29,7 +31,7 @@ func Register(username string, phoneNum string, password string, role string, in
 	var user models.User
 	//根据邀请码判断是否有权限注册管理员
 	if role == "系统管理员" || role == "失物招领管理员" {
-		if inviteCode != config.Config.GetString("register.admin_invite_code") {
+		if inviteCode != config.Config.GetString("register.admin_invite_code") || config.Config.GetString("register.admin_invite_code") == "" {
 			return nil, errs.ErrNoPermission
 		}
 	}
@@ -59,7 +61,8 @@ func Register(username string, phoneNum string, password string, role string, in
 	return &user, nil //注册成功
 }
 
-// ==============================================================================================================
+// ================================================== 登录 ==================================================
+
 // 登录时用电话号检查用户是否已存在
 func CheckUserExistsByPhoneNum(phoneNum string) (*models.User, error) {
 	var user models.User
@@ -95,7 +98,7 @@ func Login(phoneNum string, password string) (*models.User, error) {
 
 }
 
-// ==============================================================================================================
+// ================================================== 查询与修改用户个人信息 ==================================================
 
 // 检查修改后的用户名或手机号是否已存在
 func CheckUserExists(userID int, username string, phoneNum string) (bool, error) {
@@ -158,4 +161,32 @@ func UpdateProfile(userID int, username string, phoneNum string) (*models.User, 
 	}
 
 	return &user, nil
+}
+
+//================================================== 修改密码 ==================================================
+
+// 修改密码
+func UpdatePassword(userID int, oldPassword string, newPassword string) error {
+	var user models.User
+	err := database.DB.Model(&models.User{}).Where("user_id = ?", userID).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return errs.ErrUserNotFound
+	} else if err != nil {
+		return errs.ErrDatabase
+	}
+
+	if !CheckPassword(user.Password, oldPassword) {
+		return errs.ErrWrongOldPassword
+	}
+
+	newHashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		return errs.ErrHashPassword
+	}
+
+	err = database.DB.Model(&models.User{}).Where("user_id = ?", userID).Update("password", newHashedPassword).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+	return nil
 }

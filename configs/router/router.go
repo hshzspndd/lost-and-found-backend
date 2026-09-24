@@ -22,5 +22,6 @@ func Router(c *gin.Engine) {
 	{
 		auth.GET("/user/profile", user_controller.GetProfile)
 		auth.PATCH("/user/profile", user_controller.UpdateProfile)
+		auth.PATCH("/user/password", user_controller.UpdatePassword)
 	}
 }
