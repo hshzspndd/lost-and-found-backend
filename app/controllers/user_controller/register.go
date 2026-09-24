@@ -9,7 +9,7 @@ import (
 )
 
 type RegisterData struct {
-	Username   string `json:"username" binding:"required"`
+	Username   string `json:"username" binding:"required,min=3,max=15"`
 	PhoneNum   string `json:"phone_num" binding:"required"`
 	Password   string `json:"password" binding:"required"`
 	Role       string `json:"role" binding:"required,oneof=系统管理员 失物招领管理员 普通用户"`
