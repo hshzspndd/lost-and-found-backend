@@ -22,6 +22,8 @@ type ProfileResp struct {
 	Role     string `json:"role"`
 }
 
+// =============================================================================================================
+
 // 获取用户个人信息
 func GetProfile(c *gin.Context) {
 	val, _ := c.Get("claims")
@@ -56,12 +58,13 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	// 检验手机号格式
-	if err := utils.IsValidPhone(updateProfileData.PhoneNum); err != nil {
-		c.Error(err)
-		c.Abort()
-		return
+	if updateProfileData.PhoneNum != "" {
+		if ok := utils.IsValidPhone(updateProfileData.PhoneNum); !ok {
+			c.Error(errs.ErrPhoneFormat)
+			c.Abort()
+			return
+		}
 	}
-
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 	user, err := services.UpdateProfile(claims.UserID, updateProfileData.Username, updateProfileData.PhoneNum)

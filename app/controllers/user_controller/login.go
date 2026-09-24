@@ -33,8 +33,8 @@ func Login(c *gin.Context) {
 	}
 
 	// 检验手机号格式
-	if err := utils.IsValidPhone(data.PhoneNum); err != nil {
-		c.Error(err)
+	if ok := utils.IsValidPhone(data.PhoneNum); !ok {
+		c.Error(errs.ErrPhoneFormat)
 		c.Abort()
 		return
 	}

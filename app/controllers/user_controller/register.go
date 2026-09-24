@@ -34,8 +34,8 @@ func Register(c *gin.Context) {
 	}
 
 	// 检验手机号格式
-	if err := utils.IsValidPhone(registerData.PhoneNum); err != nil {
-		c.Error(err)
+	if ok := utils.IsValidPhone(registerData.PhoneNum); !ok {
+		c.Error(errs.ErrPhoneFormat)
 		c.Abort()
 		return
 	}
