@@ -55,6 +55,13 @@ func UpdateProfile(c *gin.Context) {
 		return
 	}
 
+	// 检验手机号格式
+	if err := utils.IsValidPhone(updateProfileData.PhoneNum); err != nil {
+		c.Error(err)
+		c.Abort()
+		return
+	}
+
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 	user, err := services.UpdateProfile(claims.UserID, updateProfileData.Username, updateProfileData.PhoneNum)
