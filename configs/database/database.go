@@ -24,13 +24,13 @@ func InitDB() {
 	//连接数据库
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		fmt.Println(err)
+		panic("数据库连接失败：" + err.Error())
 	}
 
 	//创建用户和联系人数据表
 	err = db.AutoMigrate(&models.User{}, &models.Contact{})
 	if err != nil {
-		panic("数据表创建失败")
+		panic("数据库创建失败：" + err.Error())
 	}
 	DB = db
 }
