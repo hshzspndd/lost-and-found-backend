@@ -15,10 +15,10 @@ var DB *gorm.DB
 func InitDB() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		config.Config.GetString("database.user"),
-		config.Config.GetString("database.password"),
+		config.Config.GetString("database.pass"),
 		config.Config.GetString("database.host"),
 		config.Config.GetInt("database.port"),
-		config.Config.GetString("database.DBname"),
+		config.Config.GetString("database.name"),
 	)
 
 	//连接数据库

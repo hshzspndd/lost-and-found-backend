@@ -13,7 +13,7 @@ func LoadConfig() {
 	Config.SetConfigName("config")
 	Config.SetConfigType("yaml")
 	Config.AddConfigPath(".")
-	Config.AddConfigPath("./configs")
+	Config.AddConfigPath("./")
 	Config.WatchConfig() //支持热更新
 
 	err := Config.ReadInConfig()
