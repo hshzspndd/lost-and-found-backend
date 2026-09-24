@@ -23,4 +23,5 @@ var (
 	ErrGenerateToken = &ResponseErrorForm{500, 1009, "登录令牌生成失败"}
 	ErrUnauthorized  = &ResponseErrorForm{401, 1010, "未登录或无效的token"}
 	ErrInvalidToken  = &ResponseErrorForm{401, 1011, "token解析失败"}
+	ErrPhoneFormat   = &ResponseErrorForm{400, 1012, "手机号格式不正确"}
 )

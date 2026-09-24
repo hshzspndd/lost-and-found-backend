@@ -32,6 +32,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// 检验手机号格式
+	if err := utils.IsValidPhone(data.PhoneNum); err != nil {
+		c.Error(err)
+		c.Abort()
+		return
+	}
+
 	user, err := services.Login(data.PhoneNum, data.Password)
 	if err != nil {
 		c.Error(err) // 将错误存入Error交由异常响应中间件处理

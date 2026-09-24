@@ -33,6 +33,13 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	// 检验手机号格式
+	if err := utils.IsValidPhone(registerData.PhoneNum); err != nil {
+		c.Error(err)
+		c.Abort()
+		return
+	}
+
 	// 尝试将用户信息存入数据库
 	user, err := services.Register(registerData.Username, registerData.PhoneNum, registerData.Password, registerData.Role, registerData.InviteCode) // 返回包含用户id的用户信息以及发生的错误
 	if err != nil {
