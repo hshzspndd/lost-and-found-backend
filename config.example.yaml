@@ -8,3 +8,6 @@ database:
 jwt:
   key: "你的密钥字符串"
   issuer: "lost-and-found-backend"
+
+register:
+  admin_invite_code: "请填写你的邀请码"
