@@ -3,12 +3,12 @@ package post_controller
 import (
 	"fmt"
 	"lost-and-found-backend/app/errs"
+	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 	"lost-and-found-backend/configs/config"
 	"math/rand"
 	"net/http"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,26 +30,15 @@ func UploadImage(c *gin.Context) {
 		return
 	}
 
-	filename := file.Filename     //提取文件名
-	ext := filepath.Ext(filename) //提取扩展名
-	ext = strings.ToLower(ext)    //转成小写
-
-	//限制图片格式
-	allowedExts := map[string]bool{
-		".jpg":  true,
-		".jpeg": true,
-		".png":  true,
-	}
-
-	if !allowedExts[ext] {
-		c.Error(errs.ErrInvalidFileType)
+	ext, err := services.ValidateImage(file)
+	if err != nil {
+		c.Error(err)
 		c.Abort()
 		return
 	}
 
 	//修改文件名
-	newFileName := fmt.Sprintf("%d_%d%s", time.Now().Unix(), rand.Intn(1000), ext)
-
+	newFileName := fmt.Sprintf("%d_%d%s", time.Now().Unix(), rand.Intn(10000), ext)
 	dst := filepath.Join("./images", newFileName)
 
 	// 保存文件

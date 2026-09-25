@@ -9,6 +9,8 @@ import (
 )
 
 func Router(c *gin.Engine) {
+	c.Static("/images", "./images") //开放静态资源目录
+
 	pre := "/api"
 	api := c.Group(pre)
 	api.Use(middlewares.GlobalResponseError)
@@ -20,19 +22,15 @@ func Router(c *gin.Engine) {
 	// ================================== 关于用户 ==================================
 
 	//jwt鉴权路由组
-	auth := api.Group("/")
+	auth := api.Group("")
 	auth.Use(middlewares.ParseJwt())
 	{
 		auth.GET("/user/profile", user_controller.GetProfile)        //获取用户个人信息
 		auth.PATCH("/user/profile", user_controller.UpdateProfile)   //修改用户个人信息
 		auth.PATCH("/user/password", user_controller.UpdatePassword) //修改密码
-	}
 
-	// ================================== 关于帖子 ==================================
+		// ================================== 关于帖子 ==================================
 
-	post := api.Group("/")
-	post.Use(middlewares.ParseJwt())
-	{
-		post.POST("/upload", post_controller.UploadImage) //上传图片
+		auth.POST("/upload", post_controller.UploadImage) //上传图片
 	}
 }

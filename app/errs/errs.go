@@ -34,4 +34,5 @@ var (
 	ErrFileNotUploaded = &ResponseErrorForm{400, 2001, "未接收到上传文件"}
 	ErrUploadFailed    = &ResponseErrorForm{400, 2002, "文件上传失败"}
 	ErrInvalidFileType = &ResponseErrorForm{400, 2003, "文件格式不正确，仅支持 jpg、jpeg、png"}
+	ErrFileTooLarge    = &ResponseErrorForm{400, 2004, "图片大小不能超过5MB"}
 )
