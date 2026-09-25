@@ -31,6 +31,7 @@ func Router(c *gin.Engine) {
 	// ================================== 关于帖子 ==================================
 
 	post := api.Group("/")
+	post.Use(middlewares.ParseJwt())
 	{
 		post.POST("/upload", post_controller.UploadImage) //上传图片
 	}
