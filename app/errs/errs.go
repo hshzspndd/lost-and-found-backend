@@ -12,6 +12,8 @@ func (e *ResponseErrorForm) Error() string {
 
 // 打包错误
 var (
+	//================================== 关于用户 ==================================
+
 	ErrBindJSON         = &ResponseErrorForm{400, 1001, "数据获取失败"}
 	ErrUserExists       = &ResponseErrorForm{409, 1002, "用户名或手机号已存在"}
 	ErrUserCheckFail    = &ResponseErrorForm{500, 1003, "用户信息校验失败"}
@@ -26,4 +28,10 @@ var (
 	ErrPhoneFormat      = &ResponseErrorForm{400, 1012, "手机号格式不正确"}
 	ErrSamePassword     = &ResponseErrorForm{400, 1013, "新旧密码相同"}
 	ErrWrongOldPassword = &ResponseErrorForm{400, 1014, "旧密码错误"}
+
+	//================================== 关于帖子 ==================================
+
+	ErrFileNotUploaded = &ResponseErrorForm{400, 2001, "未接收到上传文件"}
+	ErrUploadFailed    = &ResponseErrorForm{400, 2002, "文件上传失败"}
+	ErrInvalidFileType = &ResponseErrorForm{400, 2003, "文件格式不正确，仅支持 jpg、jpeg、png"}
 )
