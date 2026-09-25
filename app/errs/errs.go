@@ -24,7 +24,7 @@ var (
 	ErrWrongPassword    = &ResponseErrorForm{403, 1008, "密码错误"}
 	ErrGenerateToken    = &ResponseErrorForm{500, 1009, "登录令牌生成失败"}
 	ErrUnauthorized     = &ResponseErrorForm{401, 1010, "未登录或无效的token"}
-	ErrInvalidToken     = &ResponseErrorForm{401, 1011, "token解析失败"}
+	ErrInvalidToken     = &ResponseErrorForm{401, 1011, "登录过期"}
 	ErrPhoneFormat      = &ResponseErrorForm{400, 1012, "手机号格式不正确"}
 	ErrSamePassword     = &ResponseErrorForm{400, 1013, "新旧密码相同"}
 	ErrWrongOldPassword = &ResponseErrorForm{400, 1014, "旧密码错误"}

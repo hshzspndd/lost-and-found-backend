@@ -2,11 +2,15 @@ package services
 
 import (
 	"lost-and-found-backend/app/errs"
+	"lost-and-found-backend/app/models"
+	"lost-and-found-backend/configs/database"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
 	"strings"
 )
+
+// ================================================== 上传图片 ==================================================
 
 func ValidateImage(file *multipart.FileHeader) (string, error) {
 	// 限制图片大小不超过5MB
@@ -35,9 +39,9 @@ func ValidateImage(file *multipart.FileHeader) (string, error) {
 	if err != nil {
 		return "", errs.ErrUploadFailed
 	}
+	defer src.Close()
 	buffer := make([]byte, 512)
 	src.Read(buffer)
-	src.Close()
 
 	// 获取真实的 MIME 类型
 	contentType := http.DetectContentType(buffer)
@@ -46,5 +50,28 @@ func ValidateImage(file *multipart.FileHeader) (string, error) {
 	}
 
 	return ext, nil
+
+}
+
+// ================================================== 发布帖子 ==================================================
+
+func CreatePost(userID int, postType, title, eventLocation, eventTime, contact, description, imageUrl string) (*models.Post, error) {
+	var post = models.Post{
+		UserID:        userID,
+		PostType:      postType,
+		Title:         title,
+		EventLocation: eventLocation,
+		EventTime:     eventTime,
+		Contact:       contact,
+		Description:   description,
+		ImageUrl:      imageUrl,
+		Status:        "待审核",
+	}
+	err := database.DB.Model(&models.Post{}).Create(&post).Error
+	if err != nil {
+		return nil, errs.ErrDatabase
+	}
+
+	return &post, nil
 
 }

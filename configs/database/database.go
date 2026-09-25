@@ -30,7 +30,13 @@ func InitDB() {
 	//创建用户和联系人数据表
 	err = db.AutoMigrate(&models.User{}, &models.Contact{})
 	if err != nil {
-		panic("数据库创建失败：" + err.Error())
+		panic("用户数据库创建失败：" + err.Error())
 	}
+
+	err = db.AutoMigrate(&models.Post{})
+	if err != nil {
+		panic("帖子数据库创建失败：" + err.Error())
+	}
+
 	DB = db
 }
