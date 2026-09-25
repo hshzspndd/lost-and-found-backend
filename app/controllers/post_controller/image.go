@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/utils"
+	"lost-and-found-backend/configs/config"
 	"math/rand"
 	"net/http"
 	"path/filepath"
@@ -59,7 +60,8 @@ func UploadImage(c *gin.Context) {
 	}
 
 	// 拼接返回给前端的 URL
-	imageUrl := fmt.Sprintf("http://localhost:8080/images/%s", newFileName)
+	baseUrl := config.Config.GetString("app.base_url")
+	imageUrl := fmt.Sprintf("%s/images/%s", baseUrl, newFileName)
 
 	utils.ResponseSuccess(c, ImageUrlResp{
 		ImageUrl: imageUrl,

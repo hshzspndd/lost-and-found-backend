@@ -11,3 +11,6 @@ jwt:
 
 register:
   admin_invite_code: "请填写你的邀请码"
+
+upload:
+  base_url: "http://localhost:8080" # 请根据实际环境修改
