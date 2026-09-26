@@ -107,3 +107,38 @@ func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
 
 	return posts, int(total), nil
 }
+
+// 查询自己的帖子
+func GetMyPosts(userID int, page int, status string, postType string) ([]models.Post, int, error) {
+	var total int64
+	var pageSize int = 15
+
+	posts := make([]models.Post, 0)
+
+	query := database.DB.Model(&models.Post{}).Where("user_id = ?", userID)
+
+	//筛选帖子种类
+	if postType != "" && (postType == "寻物" || postType == "招领") {
+		query = query.Where("post_type = ?", postType)
+	}
+
+	//筛选审核状态
+	if status != "" && (status == "待审核" || status == "已驳回" || status == "已通过") {
+		query = query.Where("status = ?", status)
+	}
+
+	//获取帖子总数
+	err := query.Count(&total).Error
+	if err != nil {
+		return nil, 0, errs.ErrDatabase
+	}
+	offset := (page - 1) * pageSize
+
+	//分页查询
+	err = query.Offset(offset).Limit(pageSize).Find(&posts).Error
+	if err != nil {
+		return nil, 0, errs.ErrDatabase
+	}
+
+	return posts, int(total), nil
+}

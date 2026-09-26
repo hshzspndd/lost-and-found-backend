@@ -33,6 +33,7 @@ func Router(c *gin.Engine) {
 
 		auth.POST("/upload", post_controller.UploadImage) //上传图片
 		auth.POST("/post", post_controller.CreatePost)    //发布帖子
+		auth.GET("/my-posts", post_controller.GetMyPosts)
 	}
 	api.GET("/posts", post_controller.GetAllPosts)
 }
