@@ -75,3 +75,35 @@ func CreatePost(userID int, postType, title, eventLocation, eventTime, contact, 
 	return &post, nil
 
 }
+
+// ================================================== 查询帖子 ==================================================
+
+// 查询所有帖子
+func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
+	var total int64
+	var pageSize int = 15
+
+	posts := make([]models.Post, 0)
+
+	query := database.DB.Model(&models.Post{}).Where("status = ?", "已通过")
+
+	//筛选帖子种类
+	if postType != "" && (postType == "寻物" || postType == "招领") {
+		query = query.Where("post_type = ?", postType)
+	}
+
+	//获取帖子总数
+	err := query.Count(&total).Error
+	if err != nil {
+		return nil, 0, errs.ErrDatabase
+	}
+	offset := (page - 1) * pageSize
+
+	//分页查询
+	err = query.Offset(offset).Limit(pageSize).Find(&posts).Error
+	if err != nil {
+		return nil, 0, errs.ErrDatabase
+	}
+
+	return posts, int(total), nil
+}

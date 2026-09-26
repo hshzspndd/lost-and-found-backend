@@ -12,7 +12,7 @@ type Post struct {
 	Contact       string    `json:"contact"`
 	Description   string    `json:"description"`
 	ImageUrl      string    `json:"image_url"`
-	Status        string    `json:"status"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	Status        string    `json:"-"`
+	CreatedAt     time.Time `json:"-"`
+	UpdatedAt     time.Time `json:"-"`
 }

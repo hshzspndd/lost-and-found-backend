@@ -35,4 +35,5 @@ var (
 	ErrUploadFailed    = &ResponseErrorForm{400, 2002, "文件上传失败"}
 	ErrInvalidFileType = &ResponseErrorForm{400, 2003, "文件格式不正确，仅支持 jpg、jpeg、png"}
 	ErrFileTooLarge    = &ResponseErrorForm{400, 2004, "图片大小不能超过5MB"}
+	ErrInvalidQuery    = &ResponseErrorForm{400, 2005, "查询参数格式错误"}
 )
