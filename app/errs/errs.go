@@ -36,4 +36,6 @@ var (
 	ErrInvalidFileType = &ResponseErrorForm{400, 2003, "文件格式不正确，仅支持 jpg、jpeg、png"}
 	ErrFileTooLarge    = &ResponseErrorForm{400, 2004, "图片大小不能超过5MB"}
 	ErrInvalidQuery    = &ResponseErrorForm{400, 2005, "查询参数格式错误"}
+	ErrPostNotFound    = &ResponseErrorForm{404, 2006, "帖子不存在"}
+	ErrIsNotYourPost   = &ResponseErrorForm{404, 2006, "这不是你的帖子"}
 )

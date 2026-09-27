@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 // ================================================== 上传图片 ==================================================
@@ -141,4 +143,39 @@ func GetMyPosts(userID int, page int, status string, postType string) ([]models.
 	}
 
 	return posts, int(total), nil
+}
+
+// ================================================== 删除帖子 ==================================================
+
+// 删除自己的帖子
+func DeleteMyPost(PostID, UserID int) error {
+	res := database.DB.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", PostID, UserID).Delete(&models.Post{})
+
+	if res.Error != nil {
+		return errs.ErrDatabase
+	}
+
+	if res.RowsAffected == 0 {
+		postExists, err := CheckPostExistByPostID(PostID)
+		if err != nil {
+			return errs.ErrDatabase
+		}
+		if !postExists {
+			return errs.ErrPostNotFound
+		}
+		return errs.ErrIsNotYourPost
+	}
+	return nil
+}
+
+func CheckPostExistByPostID(postID int) (bool, error) {
+	var post models.Post
+	err := database.DB.Model(&models.Post{}).Where("PostID = ?", postID).First(&post).Error
+	if err == gorm.ErrRecordNotFound {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
