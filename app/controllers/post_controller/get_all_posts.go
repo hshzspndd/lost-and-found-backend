@@ -59,7 +59,7 @@ func GetAllPosts(c *gin.Context) {
 			Title:         post.Title,
 			EventLocation: post.EventLocation,
 			EventTime:     post.EventTime,
-			Description:   post.Description,
+			Description:   utils.SubStr(post.Description, 15),
 			ImageUrl:      post.ImageUrl,
 			CreatedAt:     post.CreatedAt,
 		})
