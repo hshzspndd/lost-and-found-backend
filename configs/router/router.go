@@ -36,6 +36,7 @@ func Router(c *gin.Engine) {
 		auth.GET("/all-posts", post_controller.GetAllPosts)          //获取公开帖子列表
 		auth.GET("/my-posts", post_controller.GetMyPosts)            // 查询自己的帖子
 		auth.DELETE("/delete-my-post", post_controller.DeleteMyPost) //删除我的帖子
+		auth.GET("/post-details", post_controller.GetPostDetails)    //获取帖子详情
 	}
 	api.GET("/posts", post_controller.GetAllPosts)
 }
