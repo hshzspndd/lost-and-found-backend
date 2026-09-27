@@ -12,6 +12,7 @@ type DeletePostRequest struct {
 	PostID int `json:"post_id"`
 }
 
+// 删除我的帖子
 func DeleteMyPost(c *gin.Context) {
 	var dpr DeletePostRequest
 	err := c.ShouldBindJSON(&dpr)

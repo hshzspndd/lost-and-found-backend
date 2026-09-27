@@ -31,9 +31,11 @@ func Router(c *gin.Engine) {
 
 		// ================================== 关于帖子 ==================================
 
-		auth.POST("/upload", post_controller.UploadImage) //上传图片
-		auth.POST("/post", post_controller.CreatePost)    //发布帖子
-		auth.GET("/my-posts", post_controller.GetMyPosts)
+		auth.POST("/upload", post_controller.UploadImage)             //上传图片
+		auth.POST("/post", post_controller.CreatePost)                //发布帖子
+		auth.GET("/all-posts", post_controller.GetAllPosts)           //获取公开帖子列表
+		auth.GET("/my-posts", post_controller.GetMyPosts)             // 查询自己的帖子
+		auth.DELETE("/delete-my-posts", post_controller.DeleteMyPost) //删除我的帖子
 	}
 	api.GET("/posts", post_controller.GetAllPosts)
 }
