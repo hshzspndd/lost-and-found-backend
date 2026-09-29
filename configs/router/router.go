@@ -34,8 +34,7 @@ func Router(c *gin.Engine) {
 
 		auth.POST("/upload", post_controller.UploadImage)            //上传图片
 		auth.POST("/post", post_controller.CreatePost)               //发布帖子
-		auth.GET("/all-posts", post_controller.GetAllPosts)          //获取公开帖子列表
-		auth.GET("/my-posts", post_controller.GetMyPosts)            // 查询自己的帖子
+		auth.GET("/my-posts", post_controller.GetMyPosts)            //查询自己的帖子
 		auth.DELETE("/delete-my-post", post_controller.DeleteMyPost) //删除我的帖子
 		auth.GET("/post-details", post_controller.GetPostDetails)    //获取帖子详情
 
@@ -43,5 +42,5 @@ func Router(c *gin.Engine) {
 		auth.POST("/contact", contact_controller.AddContact)     //添加联系人
 		auth.GET("/my-contacts", contact_controller.GetContacts) //查询联系人列表
 	}
-	api.GET("/posts", post_controller.GetAllPosts)
+	auth.GET("/all-posts", post_controller.GetAllPosts) //获取公开帖子列表
 }
