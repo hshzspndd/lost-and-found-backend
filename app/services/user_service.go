@@ -36,6 +36,10 @@ func Register(username string, phoneNum string, password string, role string, in
 		}
 	}
 
+	if len([]rune(username)) > 50 {
+		return nil, errs.ErrNameTooLong
+	}
+
 	userExists, err := CheckRegisterUserExists(username, phoneNum)
 	if err != nil {
 		return nil, errs.ErrUserCheckFail //用户信息校验失败

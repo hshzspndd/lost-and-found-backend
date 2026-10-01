@@ -28,6 +28,7 @@ var (
 	ErrPhoneFormat      = &ResponseErrorForm{400, 1012, "手机号格式不正确"}
 	ErrSamePassword     = &ResponseErrorForm{400, 1013, "新旧密码相同"}
 	ErrWrongOldPassword = &ResponseErrorForm{400, 1014, "旧密码错误"}
+	ErrNameTooLong      = &ResponseErrorForm{400, 1015, "用户名限制长度为50字符"}
 
 	//================================== 关于帖子 ==================================
 
