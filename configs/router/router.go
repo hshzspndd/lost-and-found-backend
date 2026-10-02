@@ -1,6 +1,7 @@
 package router
 
 import (
+	"lost-and-found-backend/app/controllers/admin_controller"
 	"lost-and-found-backend/app/controllers/contact_controller"
 	"lost-and-found-backend/app/controllers/post_controller"
 	"lost-and-found-backend/app/controllers/user_controller"
@@ -38,9 +39,18 @@ func Router(c *gin.Engine) {
 		auth.DELETE("/delete-my-post", post_controller.DeleteMyPost) //删除我的帖子
 		auth.GET("/post-details", post_controller.GetPostDetails)    //获取帖子详情
 
-		// ================================== 关于帖子 ==================================
+		// ================================== 关于联系人 ==================================
 		auth.POST("/contact", contact_controller.AddContact)     //添加联系人
 		auth.GET("/my-contacts", contact_controller.GetContacts) //查询联系人列表
 	}
 	auth.GET("/all-posts", post_controller.GetAllPosts) //获取公开帖子列表
+
+	// ================================== 关于管理员 ==================================
+	admin := api.Group("/admin")
+	admin.Use(middlewares.ParseJwt())
+	admin.Use(middlewares.RequireRole("失物招领管理员", "系统管理员"))
+	{
+
+		admin.PATCH("/posts/:post_id/audit", admin_controller.AuditPost) //审核帖子
+	}
 }
