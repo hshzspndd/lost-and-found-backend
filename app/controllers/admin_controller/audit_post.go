@@ -13,6 +13,7 @@ type AuditPostData struct {
 	Status string `json:"status" binding:"required,oneof=已驳回 已通过"`
 }
 
+// 审核帖子
 func AuditPost(c *gin.Context) {
 	var data AuditPostData
 	err := c.ShouldBindJSON(&data)
@@ -22,6 +23,7 @@ func AuditPost(c *gin.Context) {
 		return
 	}
 
+	// 从URL获取参数
 	postID, err := strconv.Atoi(c.Param("post_id"))
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
