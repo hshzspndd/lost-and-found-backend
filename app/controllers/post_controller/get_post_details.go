@@ -1,6 +1,7 @@
 package post_controller
 
 import (
+	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 	"time"
@@ -29,6 +30,13 @@ type PostDetailsResp struct {
 // 获取帖子详情
 func GetPostDetails(c *gin.Context) {
 	var gpd PostDetailsRequest
+	err := c.ShouldBindJSON(&gpd)
+	if err != nil {
+		c.Error(errs.ErrBindJSON)
+		c.Abort()
+		return
+	}
+
 	post, err := services.GetPostDetails(gpd.PostID)
 	if err != nil {
 		c.Error(err)
