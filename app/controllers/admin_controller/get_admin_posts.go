@@ -25,9 +25,10 @@ type AdminPostListResp struct {
 }
 
 type AdminPostsResp struct {
-	List  []AdminPostListResp `json:"list"`
-	Total int                 `json:"total"`
-	Page  int                 `json:"page"`
+	List     []AdminPostListResp `json:"list"`
+	Total    int                 `json:"total"`
+	Page     int                 `json:"page"`
+	PageSize int                 `json:"page_size"`
 }
 
 // 管理员获取所有帖子
@@ -71,9 +72,10 @@ func GetAdminPosts(c *gin.Context) {
 	}
 
 	resp := AdminPostsResp{
-		List:  postListResp,
-		Total: total,
-		Page:  page,
+		List:     postListResp,
+		Total:    total,
+		Page:     page,
+		PageSize: 15,
 	}
 
 	utils.ResponseSuccess(c, resp)
