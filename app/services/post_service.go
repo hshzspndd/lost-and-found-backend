@@ -146,7 +146,7 @@ func GetMyPosts(userID int, page int, status string, postType string) ([]models.
 }
 
 // 查询帖子详情
-func GetPostDetails(postID int) (*models.Post, error) {
+func GetPostDetails(postID int, userID int, role string) (*models.Post, error) {
 	var post models.Post
 	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
 	if err != nil {
@@ -156,6 +156,14 @@ func GetPostDetails(postID int) (*models.Post, error) {
 		return nil, errs.ErrDatabase
 	}
 
+	if post.Status != "已通过" {
+		// 如果不是“已通过”，只有作者本人和管理员才能看
+		isAdmin := role == "系统管理员" || role == "失物招领管理员"
+		isAuthor := post.UserID == userID
+		if !isAdmin && !isAuthor {
+			return nil, errs.ErrPostNotFound
+		}
+	}
 	return &post, nil
 }
 

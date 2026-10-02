@@ -37,7 +37,10 @@ func GetPostDetails(c *gin.Context) {
 		return
 	}
 
-	post, err := services.GetPostDetails(gpd.PostID)
+	val, _ := c.Get("claims")
+	claims := val.(*utils.Claims)
+
+	post, err := services.GetPostDetails(gpd.PostID, claims.UserID, claims.Role)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
