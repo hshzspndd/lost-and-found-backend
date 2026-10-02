@@ -5,6 +5,7 @@ import (
 	"lost-and-found-backend/app/controllers/comment_controller"
 	"lost-and-found-backend/app/controllers/contact_controller"
 	"lost-and-found-backend/app/controllers/post_controller"
+	"lost-and-found-backend/app/controllers/sysadmin_controller"
 	"lost-and-found-backend/app/controllers/user_controller"
 	"lost-and-found-backend/app/middlewares"
 
@@ -51,7 +52,7 @@ func Router(c *gin.Engine) {
 	}
 	api.GET("/all-posts", post_controller.GetAllPosts) //获取公开帖子列表
 
-	// ================================== 关于管理员 ==================================
+	// ================================== 关于失物招领管理员 ==================================
 
 	admin := api.Group("/admin/posts")
 	admin.Use(middlewares.ParseJwt())
@@ -60,5 +61,14 @@ func Router(c *gin.Engine) {
 		admin.GET("", admin_controller.GetAdminPosts)               // 获取所有帖子
 		admin.PATCH("/:post_id/audit", admin_controller.AuditPost)  //审核帖子
 		admin.DELETE("/:post_id", admin_controller.AdminDeletePost) //删除帖子
+	}
+
+	// ================================== 关于系统管理员 ==================================
+
+	sysadmin := api.Group("/sysadmin")
+	sysadmin.Use(middlewares.ParseJwt())
+	sysadmin.Use(middlewares.RequireRole("系统管理员"))
+	{
+		sysadmin.GET("/users", sysadmin_controller.GetUsers) //查询所有用户
 	}
 }
