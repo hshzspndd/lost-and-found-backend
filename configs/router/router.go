@@ -53,11 +53,12 @@ func Router(c *gin.Engine) {
 
 	// ================================== 关于管理员 ==================================
 
-	admin := api.Group("/admin")
+	admin := api.Group("/admin/posts")
 	admin.Use(middlewares.ParseJwt())
 	admin.Use(middlewares.RequireRole("失物招领管理员", "系统管理员"))
 	{
-		admin.GET("/posts", admin_controller.GetAdminPosts)              // 获取所有帖子
-		admin.PATCH("/posts/:post_id/audit", admin_controller.AuditPost) //审核帖子
+		admin.GET("", admin_controller.GetAdminPosts)               // 获取所有帖子
+		admin.PATCH("/:post_id/audit", admin_controller.AuditPost)  //审核帖子
+		admin.DELETE("/:post_id", admin_controller.AdminDeletePost) //删除帖子
 	}
 }

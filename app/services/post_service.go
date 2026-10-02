@@ -170,15 +170,15 @@ func GetPostDetails(postID int, userID int, role string) (*models.Post, error) {
 // ================================================== 删除帖子 ==================================================
 
 // 删除自己的帖子
-func DeleteMyPost(PostID, UserID int) error {
-	res := database.DB.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", PostID, UserID).Delete(&models.Post{})
+func DeleteMyPost(postID, userID int) error {
+	res := database.DB.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", postID, userID).Delete(&models.Post{})
 
 	if res.Error != nil {
 		return errs.ErrDatabase
 	}
 
 	if res.RowsAffected == 0 {
-		postExists, err := CheckPostExistByPostID(PostID)
+		postExists, err := CheckPostExistByPostID(postID)
 		if err != nil {
 			return errs.ErrDatabase
 		}
@@ -234,7 +234,7 @@ func AdminGetAllPosts(page int, postType string, status string) ([]models.Post, 
 	return posts, int(total), nil
 }
 
-// ================================================== 审核帖子 ==================================================
+// ================================================== 管理员审核帖子 ==================================================
 
 // 审核帖子
 func AuditPost(postID int, status string) error {
@@ -256,6 +256,23 @@ func AuditPost(postID int, status string) error {
 	err = database.DB.Model(&post).Update("status", status).Error
 	if err != nil {
 		return errs.ErrDatabase
+	}
+
+	return nil
+}
+
+// ================================================== 管理员删除帖子 ==================================================
+
+// 管理员删除帖子
+func AdminDeletePost(postID int) error {
+	res := database.DB.Delete(&models.Post{}, postID)
+
+	if res.Error != nil {
+		return errs.ErrDatabase
+	}
+
+	if res.RowsAffected == 0 {
+		return errs.ErrPostNotFound
 	}
 
 	return nil
