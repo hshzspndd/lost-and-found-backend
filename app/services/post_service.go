@@ -102,7 +102,7 @@ func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
 	offset := (page - 1) * pageSize
 
 	//分页查询
-	err = query.Offset(offset).Limit(pageSize).Find(&posts).Error
+	err = query.Order("created_at DESC, post_id DESC").Offset(offset).Limit(pageSize).Find(&posts).Error
 	if err != nil {
 		return nil, 0, errs.ErrDatabase
 	}
@@ -137,7 +137,7 @@ func GetMyPosts(userID int, page int, status string, postType string) ([]models.
 	offset := (page - 1) * pageSize
 
 	//分页查询
-	err = query.Offset(offset).Limit(pageSize).Find(&posts).Error
+	err = query.Order("created_at DESC, post_id DESC").Offset(offset).Limit(pageSize).Find(&posts).Error
 	if err != nil {
 		return nil, 0, errs.ErrDatabase
 	}
@@ -218,7 +218,7 @@ func AdminGetAllPosts(page int, postType string, status string) ([]models.Post, 
 	offset := (page - 1) * pageSize
 
 	//分页查询
-	err = query.Offset(offset).Limit(pageSize).Find(&posts).Error
+	err = query.Order("created_at DESC, post_id DESC").Offset(offset).Limit(pageSize).Find(&posts).Error
 	if err != nil {
 		return nil, 0, errs.ErrDatabase
 	}

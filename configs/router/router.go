@@ -49,7 +49,7 @@ func Router(c *gin.Engine) {
 		auth.POST("/comment", comment_controller.CreateComment)   //发布评论
 		auth.GET("/all-comments", comment_controller.GetComments) //获取评论
 	}
-	auth.GET("/all-posts", post_controller.GetAllPosts) //获取公开帖子列表
+	api.GET("/all-posts", post_controller.GetAllPosts) //获取公开帖子列表
 
 	// ================================== 关于管理员 ==================================
 
