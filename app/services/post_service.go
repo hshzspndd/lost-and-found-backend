@@ -150,6 +150,9 @@ func GetPostDetails(postID int) (*models.Post, error) {
 	var post models.Post
 	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errs.ErrPostNotFound
+		}
 		return nil, errs.ErrDatabase
 	}
 
@@ -181,7 +184,7 @@ func DeleteMyPost(PostID, UserID int) error {
 
 func CheckPostExistByPostID(postID int) (bool, error) {
 	var post models.Post
-	err := database.DB.Model(&models.Post{}).Where("PostID = ?", postID).First(&post).Error
+	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
 	if err == gorm.ErrRecordNotFound {
 		return false, nil
 	}
@@ -189,4 +192,31 @@ func CheckPostExistByPostID(postID int) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+// ================================================== 审核帖子 ==================================================
+
+// 审核帖子
+func AuditPost(postID int, status string) error {
+	// 查帖子
+	var post models.Post
+	err := database.DB.First(&post, postID).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errs.ErrPostNotFound // 帖子不存在
+		}
+		return errs.ErrDatabase // 数据库错误
+	}
+
+	if post.Status != "待审核" {
+		return errs.ErrStatusInvalid
+	}
+
+	// 执行更新
+	err = database.DB.Model(&post).Update("status", status).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+
+	return nil
 }
