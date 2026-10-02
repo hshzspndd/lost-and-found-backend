@@ -2,6 +2,7 @@ package router
 
 import (
 	"lost-and-found-backend/app/controllers/admin_controller"
+	"lost-and-found-backend/app/controllers/comment_controller"
 	"lost-and-found-backend/app/controllers/contact_controller"
 	"lost-and-found-backend/app/controllers/post_controller"
 	"lost-and-found-backend/app/controllers/user_controller"
@@ -42,6 +43,11 @@ func Router(c *gin.Engine) {
 		// ================================== 关于联系人 ==================================
 		auth.POST("/contact", contact_controller.AddContact)     //添加联系人
 		auth.GET("/my-contacts", contact_controller.GetContacts) //查询联系人列表
+
+		// ================================== 关于评论 ==================================
+
+		auth.POST("/comment", comment_controller.CreateComment)   //发布评论
+		auth.GET("/all-comments", comment_controller.GetComments) //获取评论
 	}
 	auth.GET("/all-posts", post_controller.GetAllPosts) //获取公开帖子列表
 

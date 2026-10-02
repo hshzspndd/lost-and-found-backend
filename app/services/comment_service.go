@@ -8,12 +8,11 @@ import (
 
 // ================================================== 发布评论 ==================================================
 
-func CreateComment(commentID, postID, userID int, content string) (*models.Comment, error) {
+func CreateComment(postID, userID int, content string) (*models.Comment, error) {
 	var comment = models.Comment{
-		CommentID: commentID,
-		PostID:    postID,
-		UserID:    userID,
-		Content:   content,
+		PostID:  postID,
+		UserID:  userID,
+		Content: content,
 	}
 	err := database.DB.Model(&models.Contact{}).Create(&comment).Error
 	if err != nil {
