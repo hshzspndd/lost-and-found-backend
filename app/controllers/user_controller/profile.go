@@ -10,8 +10,8 @@ import (
 
 // 参数绑定结构体
 type UpdateProfileData struct {
-	Username string `json:"username"`
-	PhoneNum string `json:"phone_num"`
+	Username string `json:"username" binding:"omitempty,min=3,max=15"`
+	PhoneNum string `json:"phone_num" binding:"omitempty"`
 }
 
 // 返回响应结构体
