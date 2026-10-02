@@ -23,9 +23,10 @@ type PostListResp struct {
 }
 
 type PostsResp struct {
-	List  []PostListResp `json:"list"`
-	Total int            `json:"total"`
-	Page  int            `json:"page"`
+	List     []PostListResp `json:"list"`
+	Total    int            `json:"total"`
+	Page     int            `json:"page"`
+	PageSize int            `json:"page_size"`
 }
 
 // 获取公开帖子列表
@@ -66,9 +67,10 @@ func GetAllPosts(c *gin.Context) {
 	}
 
 	resp := PostsResp{
-		List:  postListResp,
-		Total: total,
-		Page:  page,
+		List:     postListResp,
+		Total:    total,
+		Page:     page,
+		PageSize: 15,
 	}
 
 	utils.ResponseSuccess(c, resp)
