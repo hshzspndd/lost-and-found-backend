@@ -4,6 +4,8 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/models"
 	"lost-and-found-backend/configs/database"
+
+	"gorm.io/gorm"
 )
 
 // ================================================== 新增联系人 ==================================================
@@ -52,4 +54,39 @@ func GetContacts(page, ownerID int) ([]models.Contact, int, error) {
 	}
 
 	return contacts, int(total), nil
+}
+
+// ================================================== 删除联系人 ==================================================
+
+// 删除自己的联系人
+func DeleteMyContact(ContactID, OwnerID int) error {
+	res := database.DB.Model(&models.Contact{}).Where("contact_id = ? AND owner_id = ?", ContactID, OwnerID).Delete(&models.Contact{})
+
+	if res.Error != nil {
+		return errs.ErrDatabase
+	}
+
+	if res.RowsAffected == 0 {
+		contactExists, err := CheckContactExistByContactID(ContactID)
+		if err != nil {
+			return errs.ErrDatabase
+		}
+		if !contactExists {
+			return errs.ErrContactNotFound
+		}
+		return errs.ErrIsNotYourContact
+	}
+	return nil
+}
+
+func CheckContactExistByContactID(contactID int) (bool, error) {
+	var contact models.Contact
+	err := database.DB.Model(&models.Contact{}).Where("contact_id = ?", contactID).First(&contact).Error
+	if err == gorm.ErrRecordNotFound {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

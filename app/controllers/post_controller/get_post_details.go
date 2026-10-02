@@ -14,7 +14,7 @@ type PostDetailsRequest struct {
 }
 
 type PostDetailsResp struct {
-	PostID        int       `json:"post_id" gorm:"primarykey;autoIncrement"`
+	PostID        int       `json:"post_id"`
 	UserID        int       `json:"user_id"`
 	PostType      string    `json:"post_type"`
 	Title         string    `json:"title"`

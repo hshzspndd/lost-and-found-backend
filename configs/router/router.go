@@ -41,15 +41,17 @@ func Router(c *gin.Engine) {
 		auth.GET("/post-details", post_controller.GetPostDetails)    //获取帖子详情
 
 		// ================================== 关于联系人 ==================================
-		auth.POST("/contact", contact_controller.AddContact)     //添加联系人
-		auth.GET("/my-contacts", contact_controller.GetContacts) //查询联系人列表
+		auth.POST("/contact", contact_controller.AddContact)             //添加联系人
+		auth.GET("/my-contacts", contact_controller.GetContacts)         //查询联系人列表
+		auth.DELETE("/delete-contact", contact_controller.DeleteContact) //删除联系人
 
 		// ================================== 关于评论 ==================================
 
-		auth.POST("/comment", comment_controller.CreateComment)   //发布评论
-		auth.GET("/all-comments", comment_controller.GetComments) //获取评论
+		auth.POST("/comment", comment_controller.CreateComment)               //发布评论
+		auth.DELETE("/delete-my-comment", comment_controller.DeleteMyComment) //删除我的评论
 	}
-	auth.GET("/all-posts", post_controller.GetAllPosts) //获取公开帖子列表
+	auth.GET("/all-posts", post_controller.GetAllPosts)       //获取公开帖子列表
+	auth.GET("/all-comments", comment_controller.GetComments) //获取评论
 
 	// ================================== 关于管理员 ==================================
 

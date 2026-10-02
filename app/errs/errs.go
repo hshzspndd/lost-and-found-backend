@@ -40,4 +40,14 @@ var (
 	ErrPostNotFound    = &ResponseErrorForm{404, 2006, "帖子不存在"}
 	ErrIsNotYourPost   = &ResponseErrorForm{403, 2007, "这不是你的帖子"}
 	ErrStatusInvalid   = &ResponseErrorForm{409, 2008, "当前状态不允许审核"}
+
+	//================================== 关于联系人 ==================================
+
+	ErrContactNotFound  = &ResponseErrorForm{404, 3001, "评论不存在"}
+	ErrIsNotYourContact = &ResponseErrorForm{403, 3002, "这不是你的评论"}
+
+	//================================== 关于评论 ==================================
+
+	ErrCommentNotFound  = &ResponseErrorForm{404, 4001, "评论不存在"}
+	ErrIsNotYourComment = &ResponseErrorForm{403, 4002, "这不是你的评论"}
 )
