@@ -145,6 +145,7 @@ func UpdateProfile(userID int, username string, phoneNum string) (*models.User, 
 	if username != "" {
 		updateUser["username"] = username
 	}
+
 	if phoneNum != "" {
 		updateUser["phone_num"] = phoneNum
 	}

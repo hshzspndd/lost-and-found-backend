@@ -10,7 +10,7 @@ import (
 
 // 参数绑定结构体
 type UpdateProfileData struct {
-	Username string `json:"username" binding:"omitempty,min=3,max=15"`
+	Username string `json:"username" binding:"omitempty"`
 	PhoneNum string `json:"phone_num" binding:"omitempty"`
 }
 
@@ -56,6 +56,14 @@ func UpdateProfile(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	// 检验用户名长度
+	if updateProfileData.PhoneNum != "" {
+		if len([]rune(updateProfileData.Username)) > 50 {
+			c.Error(errs.ErrNameTooLong)
+			c.Abort()
+			return
+		}
+	}
 
 	// 检验手机号格式
 	if updateProfileData.PhoneNum != "" {
@@ -65,6 +73,7 @@ func UpdateProfile(c *gin.Context) {
 			return
 		}
 	}
+
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 	user, err := services.UpdateProfile(claims.UserID, updateProfileData.Username, updateProfileData.PhoneNum)
