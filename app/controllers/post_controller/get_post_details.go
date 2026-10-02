@@ -23,7 +23,6 @@ type PostDetailsResp struct {
 	Contact       string    `json:"contact"`
 	Description   string    `json:"description"`
 	ImageUrl      string    `json:"image_url"`
-	Status        string    `json:"status"`
 	CreatedAt     time.Time `json:"created_at"`
 }
 
