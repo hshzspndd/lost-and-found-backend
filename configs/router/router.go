@@ -65,10 +65,11 @@ func Router(c *gin.Engine) {
 
 	// ================================== 关于系统管理员 ==================================
 
-	sysadmin := api.Group("/sysadmin")
+	sysadmin := api.Group("/sys")
 	sysadmin.Use(middlewares.ParseJwt())
 	sysadmin.Use(middlewares.RequireRole("系统管理员"))
 	{
-		sysadmin.GET("/users", sysadmin_controller.GetUsers) //查询所有用户
+		sysadmin.GET("/users", sysadmin_controller.GetUsers)                   //查询所有用户
+		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole) // 修改用户角色
 	}
 }

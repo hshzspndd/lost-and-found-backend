@@ -4,6 +4,8 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/models"
 	"lost-and-found-backend/configs/database"
+
+	"gorm.io/gorm"
 )
 
 // 查询所有用户
@@ -33,4 +35,31 @@ func GetAllUsers(page int, role string) ([]models.User, int, error) {
 	}
 
 	return users, int(total), nil
+}
+
+// 修改用户角色
+func UpdateRole(operatorID int, userID int, role string) error {
+	// 防止修改自己的角色
+	if operatorID == userID {
+		return errs.ErrNoPermission
+	}
+
+	var user models.User
+	err := database.DB.Where("user_id = ?", userID).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errs.ErrUserNotFound
+		}
+		return errs.ErrDatabase
+	}
+
+	if user.Role == role {
+		return nil // 静默成功
+	}
+	err = database.DB.Model(&user).Update("role", role).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+
+	return nil
 }
