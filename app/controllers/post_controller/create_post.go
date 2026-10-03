@@ -28,6 +28,7 @@ type PostResp struct {
 	Contact       string `json:"contact"`
 	Description   string `json:"description"`
 	ImageUrl      string `json:"image_url"`
+	IsResolve     string `json:"is_resolve"`
 	Status        string `json:"status"`
 }
 
@@ -60,6 +61,7 @@ func CreatePost(c *gin.Context) {
 		Contact:       post.Contact,
 		Description:   post.Description,
 		ImageUrl:      post.ImageUrl,
+		IsResolve:     post.IsResolve,
 		Status:        post.Status,
 	}
 

@@ -19,6 +19,7 @@ type PostListResp struct {
 	EventTime     string    `json:"event_time"`
 	Description   string    `json:"description"`
 	ImageUrl      string    `json:"image_url"`
+	IsResolve     string    `json:"is_resolve"`
 	CreatedAt     time.Time `json:"created_at"`
 }
 
@@ -33,6 +34,12 @@ type PostsResp struct {
 func GetAllPosts(c *gin.Context) {
 
 	postType := c.Query("post_type")
+
+	isResolve := c.DefaultQuery("is_resolve", "未解决")
+	if isResolve == "" {
+		isResolve = "未解决"
+	}
+
 	pageStr := c.DefaultQuery("page", "1")
 	if pageStr == "" {
 		pageStr = "1"
@@ -48,7 +55,7 @@ func GetAllPosts(c *gin.Context) {
 		page = 1
 	}
 
-	postList, total, err := services.GetAllPosts(page, postType)
+	postList, total, err := services.GetAllPosts(page, postType, isResolve)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -66,6 +73,7 @@ func GetAllPosts(c *gin.Context) {
 			EventTime:     post.EventTime,
 			Description:   utils.SubStr(post.Description, 15),
 			ImageUrl:      post.ImageUrl,
+			IsResolve:     post.IsResolve,
 			CreatedAt:     post.CreatedAt,
 		})
 	}

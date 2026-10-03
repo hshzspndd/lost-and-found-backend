@@ -19,6 +19,7 @@ type AdminPostListResp struct {
 	EventTime     string    `json:"event_time"`
 	Description   string    `json:"description"`
 	ImageUrl      string    `json:"image_url"`
+	IsResolve     string    `json:"is_resolve"`
 	Status        string    `json:"status"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
@@ -36,6 +37,8 @@ func GetAdminPosts(c *gin.Context) {
 
 	postType := c.Query("post_type")
 	status := c.Query("status")
+	isResolve := c.Query("is_resolve")
+
 	pageStr := c.DefaultQuery("page", "1")
 	if pageStr == "" {
 		pageStr = "1"
@@ -51,7 +54,7 @@ func GetAdminPosts(c *gin.Context) {
 		page = 1
 	}
 
-	postList, total, err := services.AdminGetAllPosts(page, postType, status)
+	postList, total, err := services.AdminGetAllPosts(page, postType, status, isResolve)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -69,6 +72,7 @@ func GetAdminPosts(c *gin.Context) {
 			EventTime:     post.EventTime,
 			Description:   utils.SubStr(post.Description, 15),
 			ImageUrl:      post.ImageUrl,
+			IsResolve:     post.IsResolve,
 			Status:        post.Status,
 			CreatedAt:     post.CreatedAt,
 			UpdatedAt:     post.UpdatedAt,

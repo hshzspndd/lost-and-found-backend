@@ -35,6 +35,8 @@ type MyPostsResp struct {
 func GetMyPosts(c *gin.Context) {
 	postType := c.Query("post_type")
 	status := c.Query("status")
+	isResolve := c.Query("is_resolve")
+
 	pageStr := c.DefaultQuery("page", "1")
 	if pageStr == "" {
 		pageStr = "1"
@@ -53,7 +55,7 @@ func GetMyPosts(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	postList, total, err := services.GetMyPosts(claims.UserID, page, status, postType)
+	postList, total, err := services.GetMyPosts(claims.UserID, page, status, postType, isResolve)
 	if err != nil {
 		c.Error(err)
 		c.Abort()

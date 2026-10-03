@@ -67,6 +67,7 @@ func CreatePost(userID int, postType, title, eventLocation, eventTime, contact, 
 		Contact:       contact,
 		Description:   description,
 		ImageUrl:      imageUrl,
+		IsResolve:     "未解决",
 		Status:        "待审核",
 	}
 	err := database.DB.Model(&models.Post{}).Create(&post).Error
@@ -81,7 +82,7 @@ func CreatePost(userID int, postType, title, eventLocation, eventTime, contact, 
 // ================================================== 查询帖子 ==================================================
 
 // 查询所有帖子
-func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
+func GetAllPosts(page int, postType string, isResolve string) ([]models.Post, int, error) {
 	var total int64
 	var pageSize int = 15
 
@@ -92,6 +93,11 @@ func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
 	//筛选帖子种类
 	if postType != "" && (postType == "寻物" || postType == "招领") {
 		query = query.Where("post_type = ?", postType)
+	}
+
+	//筛选帖子是否解决
+	if isResolve == "已解决" || isResolve == "未解决" {
+		query = query.Where("is_resolve = ?", isResolve)
 	}
 
 	//获取帖子总数
@@ -111,7 +117,7 @@ func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
 }
 
 // 查询自己的帖子
-func GetMyPosts(userID int, page int, status string, postType string) ([]models.Post, int, error) {
+func GetMyPosts(userID int, page int, status string, postType string, isResolve string) ([]models.Post, int, error) {
 	var total int64
 	var pageSize int = 15
 
@@ -127,6 +133,11 @@ func GetMyPosts(userID int, page int, status string, postType string) ([]models.
 	//筛选审核状态
 	if status != "" && (status == "待审核" || status == "已驳回" || status == "已通过") {
 		query = query.Where("status = ?", status)
+	}
+
+	//筛选帖子是否解决
+	if isResolve != "" && (isResolve == "已解决" || isResolve == "未解决") {
+		query = query.Where("is_resolve = ?", isResolve)
 	}
 
 	//获取帖子总数
@@ -204,7 +215,7 @@ func CheckPostExistByPostID(postID int) (bool, error) {
 
 // ================================================== 管理员查询所有帖子 ==================================================
 
-func AdminGetAllPosts(page int, postType string, status string) ([]models.Post, int, error) {
+func AdminGetAllPosts(page int, postType string, status string, isResolve string) ([]models.Post, int, error) {
 	var total int64
 	var pageSize int = 15
 
@@ -214,10 +225,17 @@ func AdminGetAllPosts(page int, postType string, status string) ([]models.Post, 
 	if postType != "" && (postType == "寻物" || postType == "招领") {
 		query = query.Where("post_type = ?", postType)
 	}
+
 	//筛选提子状态
 	if status != "" && (status == "待审核" || status == "已驳回" || status == "已通过") {
 		query = query.Where("status = ?", status)
 	}
+
+	//筛选帖子是否解决
+	if isResolve != "" && (isResolve == "已解决" || isResolve == "未解决") {
+		query = query.Where("is_resolve = ?", isResolve)
+	}
+
 	//获取帖子总数
 	err := query.Count(&total).Error
 	if err != nil {
