@@ -26,7 +26,11 @@ type UsersResp struct {
 // 获取所有用户
 func GetUsers(c *gin.Context) {
 	role := c.Query("role")
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageStr := c.DefaultQuery("page", "1")
+	if pageStr == "" {
+		pageStr = "1"
+	}
+	page, err := strconv.Atoi(pageStr)
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
 		c.Abort()

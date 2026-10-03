@@ -35,7 +35,11 @@ type MyPostsResp struct {
 func GetMyPosts(c *gin.Context) {
 	postType := c.Query("post_type")
 	status := c.Query("status")
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageStr := c.DefaultQuery("page", "1")
+	if pageStr == "" {
+		pageStr = "1"
+	}
+	page, err := strconv.Atoi(pageStr)
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
