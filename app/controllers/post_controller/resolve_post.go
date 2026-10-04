@@ -13,6 +13,7 @@ type ResolveStatus struct {
 	IsResolve string `json:"is_resolve" binding:"required,oneof=已解决 未解决"`
 }
 
+// 帖子的解决与撤销解决
 func Resolve(c *gin.Context) {
 	var resolveStatus ResolveStatus
 	err := c.ShouldBindJSON(&resolveStatus)

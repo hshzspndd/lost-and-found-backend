@@ -213,9 +213,9 @@ func CheckPostExistByPostID(postID int) (bool, error) {
 	return true, nil
 }
 
-// ================================================== 帖子的解决 ==================================================
+// ================================================== 帖子的解决与撤销解决 ==================================================
 
-// 帖子是否解决
+// 帖子的解决与撤销解决
 func Resolve(postID int, userID int, resolveStatus string) error {
 	var post models.Post
 	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
@@ -227,10 +227,10 @@ func Resolve(postID int, userID int, resolveStatus string) error {
 	}
 
 	if post.UserID != userID {
-		return errs.ErrIsNotYourPost
+		return errs.ErrIsNotYourPost //防止更改他人的
 	}
 	if post.Status != "已通过" {
-		return errs.ErrStatusInvalid
+		return errs.ErrStatusInvalid //防止更改未通过审核的
 	}
 	if post.IsResolve == resolveStatus {
 		return nil
