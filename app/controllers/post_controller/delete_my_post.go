@@ -4,20 +4,16 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type DeletePostRequest struct {
-	PostID int `json:"post_id"`
-}
-
 // 删除我的帖子
 func DeleteMyPost(c *gin.Context) {
-	var dpr DeletePostRequest
-	err := c.ShouldBindJSON(&dpr)
+	postID, err := strconv.Atoi(c.Param("post_id"))
 	if err != nil {
-		c.Error(errs.ErrBindJSON)
+		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
 		return
 	}
@@ -25,7 +21,7 @@ func DeleteMyPost(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	err = services.DeleteMyPost(dpr.PostID, claims.UserID)
+	err = services.DeleteMyPost(postID, claims.UserID)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
