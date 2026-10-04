@@ -1,4 +1,4 @@
-package sysadmin_controller
+package announcement_controller
 
 import (
 	"lost-and-found-backend/app/errs"

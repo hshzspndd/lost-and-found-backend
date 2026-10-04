@@ -2,6 +2,7 @@ package router
 
 import (
 	"lost-and-found-backend/app/controllers/admin_controller"
+	"lost-and-found-backend/app/controllers/announcement_controller"
 	"lost-and-found-backend/app/controllers/comment_controller"
 	"lost-and-found-backend/app/controllers/contact_controller"
 	"lost-and-found-backend/app/controllers/post_controller"
@@ -21,57 +22,54 @@ func Router(c *gin.Engine) {
 	{
 		api.POST("/register", user_controller.Register) //注册
 		api.POST("/login", user_controller.Login)       //登录
+		api.GET("/posts", post_controller.GetAllPosts)  //获取公开帖子列表
+		api.GET("/announcements", announcement_controller.GetAnnouncements)
 	}
 
-	//jwt鉴权路由组
+	// jwt鉴权路由组
 	auth := api.Group("")
 	auth.Use(middlewares.ParseJwt())
 	{
 		// ================================== 关于用户 ==================================
-
 		auth.GET("/user/profile", user_controller.GetProfile)        //获取用户个人信息
 		auth.PATCH("/user/profile", user_controller.UpdateProfile)   //修改用户个人信息
 		auth.PATCH("/user/password", user_controller.UpdatePassword) //修改密码
 
 		// ================================== 关于帖子 ==================================
-
-		auth.POST("/upload", post_controller.UploadImage)                 //上传图片
-		auth.POST("/post", post_controller.CreatePost)                    //发布帖子
-		auth.GET("/my-posts", post_controller.GetMyPosts)                 //查询自己的帖子
-		auth.DELETE("/my-post/delete", post_controller.DeleteMyPost)      //删除我的帖子
-		auth.GET("/post/:post_id/detail", post_controller.GetPostDetails) //获取帖子详情
-		auth.PATCH("/post/:post_id/resolve", post_controller.Resolve)     //帖子的解决与撤销解决
+		auth.POST("/upload", post_controller.UploadImage)               //上传图片
+		auth.POST("/posts", post_controller.CreatePost)                 //发布帖子
+		auth.GET("/my/posts", post_controller.GetMyPosts)               //查询自己的帖子
+		auth.DELETE("/my/posts/:post_id", post_controller.DeleteMyPost) //删除我的帖子
+		auth.GET("/posts/:post_id", post_controller.GetPostDetails)     //获取帖子详情
+		auth.PATCH("/posts/:post_id/resolve", post_controller.Resolve)  //帖子的解决与撤销解决
 
 		// ================================== 关于联系人 ==================================
-		auth.POST("/contact", contact_controller.AddContact)     //添加联系人
-		auth.GET("/my-contacts", contact_controller.GetContacts) //查询联系人列表
+		auth.POST("/contacts", contact_controller.AddContact)    //添加联系人
+		auth.GET("/my/contacts", contact_controller.GetContacts) //查询联系人列表
 
 		// ================================== 关于评论 ==================================
-
-		auth.POST("/comment", comment_controller.CreateComment)   //发布评论
-		auth.GET("/all-comments", comment_controller.GetComments) //获取评论
+		auth.POST("/comments", comment_controller.CreateComment) //发布评论
+		auth.GET("/comments", comment_controller.GetComments)    //获取评论
 	}
-	api.GET("/all-posts", post_controller.GetAllPosts) //获取公开帖子列表
 
 	// ================================== 关于失物招领管理员 ==================================
-
-	admin := api.Group("/admin")
+	admin := api.Group("/admin/posts")
 	admin.Use(middlewares.ParseJwt())
 	admin.Use(middlewares.RequireRole("失物招领管理员", "系统管理员"))
 	{
-		admin.GET("/posts", admin_controller.GetAdminPosts)                // 获取所有帖子
-		admin.PATCH("/post/:post_id/audit", admin_controller.AuditPost)    //审核帖子
-		admin.DELETE("/:post_id/delete", admin_controller.AdminDeletePost) //删除帖子
+		admin.GET("", admin_controller.GetAdminPosts)               // 获取所有帖子
+		admin.PATCH("/:post_id/audit", admin_controller.AuditPost)  //审核帖子
+		admin.DELETE("/:post_id", admin_controller.AdminDeletePost) //删除帖子
 	}
 
 	// ================================== 关于系统管理员 ==================================
-
 	sysadmin := api.Group("/sys")
 	sysadmin.Use(middlewares.ParseJwt())
 	sysadmin.Use(middlewares.RequireRole("系统管理员"))
 	{
-		sysadmin.GET("/users", sysadmin_controller.GetUsers)                   //查询所有用户
-		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole) // 修改用户角色
-		sysadmin.POST("/announcement", sysadmin_controller.CreateAnnouncement) //发布公告
+		sysadmin.GET("/users", sysadmin_controller.GetUsers)                                           //查询所有用户
+		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole)                         // 修改用户角色
+		sysadmin.POST("/announcements", announcement_controller.CreateAnnouncement)                    //发布公告
+		sysadmin.DELETE("/announcements/:announcement_id", announcement_controller.DeleteAnnouncement) //删除公告
 	}
 }
