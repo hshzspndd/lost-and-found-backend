@@ -213,6 +213,36 @@ func CheckPostExistByPostID(postID int) (bool, error) {
 	return true, nil
 }
 
+// ================================================== 帖子的解决 ==================================================
+
+// 帖子是否解决
+func Resolve(postID int, userID int, resolveStatus string) error {
+	var post models.Post
+	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
+	if err == gorm.ErrRecordNotFound {
+		return errs.ErrPostNotFound
+	}
+	if err != nil {
+		return errs.ErrDatabase
+	}
+
+	if post.UserID != userID {
+		return errs.ErrIsNotYourPost
+	}
+	if post.Status != "已通过" {
+		return errs.ErrStatusInvalid
+	}
+	if post.IsResolve == resolveStatus {
+		return nil
+	}
+
+	err = database.DB.Model(&post).Update("is_resolve", resolveStatus).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+	return nil
+}
+
 // ================================================== 管理员查询所有帖子 ==================================================
 
 func AdminGetAllPosts(page int, postType string, status string, isResolve string) ([]models.Post, int, error) {

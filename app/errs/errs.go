@@ -39,5 +39,5 @@ var (
 	ErrInvalidQuery    = &ResponseErrorForm{400, 2005, "查询参数格式错误"}
 	ErrPostNotFound    = &ResponseErrorForm{404, 2006, "帖子不存在"}
 	ErrIsNotYourPost   = &ResponseErrorForm{403, 2007, "这不是你的帖子"}
-	ErrStatusInvalid   = &ResponseErrorForm{409, 2008, "当前状态不允许审核"}
+	ErrStatusInvalid   = &ResponseErrorForm{409, 2008, "当前状态不允许此操作"}
 )
