@@ -2,6 +2,7 @@ package router
 
 import (
 	"lost-and-found-backend/app/controllers/admin_controller"
+	"lost-and-found-backend/app/controllers/announcement_controller"
 	"lost-and-found-backend/app/controllers/comment_controller"
 	"lost-and-found-backend/app/controllers/contact_controller"
 	"lost-and-found-backend/app/controllers/post_controller"
@@ -22,6 +23,7 @@ func Router(c *gin.Engine) {
 		api.POST("/register", user_controller.Register) //注册
 		api.POST("/login", user_controller.Login)       //登录
 		api.GET("/posts", post_controller.GetAllPosts)  //获取公开帖子列表
+		api.GET("/announcements", announcement_controller.GetAnnouncements)
 	}
 
 	// jwt鉴权路由组
