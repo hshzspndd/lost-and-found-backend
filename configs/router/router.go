@@ -67,9 +67,9 @@ func Router(c *gin.Engine) {
 	sysadmin.Use(middlewares.ParseJwt())
 	sysadmin.Use(middlewares.RequireRole("系统管理员"))
 	{
-		sysadmin.GET("/users", sysadmin_controller.GetUsers)                                       //查询所有用户
-		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole)                     // 修改用户角色
-		sysadmin.POST("/announcements", sysadmin_controller.CreateAnnouncement)                    //发布公告
-		sysadmin.DELETE("/announcements/:announcement_id", sysadmin_controller.DeleteAnnouncement) //删除公告
+		sysadmin.GET("/users", sysadmin_controller.GetUsers)                                           //查询所有用户
+		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole)                         // 修改用户角色
+		sysadmin.POST("/announcements", announcement_controller.CreateAnnouncement)                    //发布公告
+		sysadmin.DELETE("/announcements/:announcement_id", announcement_controller.DeleteAnnouncement) //删除公告
 	}
 }
