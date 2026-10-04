@@ -4,6 +4,7 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -28,10 +29,9 @@ type PostDetailsResp struct {
 
 // 获取帖子详情
 func GetPostDetails(c *gin.Context) {
-	var gpd PostDetailsRequest
-	err := c.ShouldBindJSON(&gpd)
+	postID, err := strconv.Atoi(c.Param("post_id"))
 	if err != nil {
-		c.Error(errs.ErrBindJSON)
+		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
 		return
 	}
@@ -39,7 +39,7 @@ func GetPostDetails(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	post, err := services.GetPostDetails(gpd.PostID, claims.UserID, claims.Role)
+	post, err := services.GetPostDetails(postID, claims.UserID, claims.Role)
 	if err != nil {
 		c.Error(err)
 		c.Abort()

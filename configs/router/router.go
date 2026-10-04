@@ -39,7 +39,7 @@ func Router(c *gin.Engine) {
 		auth.POST("/post", post_controller.CreatePost)                //发布帖子
 		auth.GET("/my-posts", post_controller.GetMyPosts)             //查询自己的帖子
 		auth.DELETE("/delete-my-post", post_controller.DeleteMyPost)  //删除我的帖子
-		auth.GET("/post-details", post_controller.GetPostDetails)     //获取帖子详情
+		auth.GET("/:post_id/details", post_controller.GetPostDetails) //获取帖子详情
 		auth.PATCH("posts/:post_id/resolve", post_controller.Resolve) //帖子的解决与撤销解决
 
 		// ================================== 关于联系人 ==================================
