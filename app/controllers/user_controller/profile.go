@@ -57,7 +57,7 @@ func UpdateProfile(c *gin.Context) {
 		return
 	}
 	// 检验用户名长度
-	if updateProfileData.PhoneNum != "" {
+	if updateProfileData.Username != "" {
 		if len([]rune(updateProfileData.Username)) > 50 {
 			c.Error(errs.ErrNameTooLong)
 			c.Abort()
