@@ -35,12 +35,12 @@ func Router(c *gin.Engine) {
 
 		// ================================== 关于帖子 ==================================
 
-		auth.POST("/upload", post_controller.UploadImage)             //上传图片
-		auth.POST("/post", post_controller.CreatePost)                //发布帖子
-		auth.GET("/my-posts", post_controller.GetMyPosts)             //查询自己的帖子
-		auth.DELETE("/delete-my-post", post_controller.DeleteMyPost)  //删除我的帖子
-		auth.GET("/:post_id/details", post_controller.GetPostDetails) //获取帖子详情
-		auth.PATCH("posts/:post_id/resolve", post_controller.Resolve) //帖子的解决与撤销解决
+		auth.POST("/upload", post_controller.UploadImage)                 //上传图片
+		auth.POST("/post", post_controller.CreatePost)                    //发布帖子
+		auth.GET("/my-posts", post_controller.GetMyPosts)                 //查询自己的帖子
+		auth.DELETE("/my-post/delete", post_controller.DeleteMyPost)      //删除我的帖子
+		auth.GET("/post/:post_id/detail", post_controller.GetPostDetails) //获取帖子详情
+		auth.PATCH("/post/:post_id/resolve", post_controller.Resolve)     //帖子的解决与撤销解决
 
 		// ================================== 关于联系人 ==================================
 		auth.POST("/contact", contact_controller.AddContact)     //添加联系人
@@ -55,13 +55,13 @@ func Router(c *gin.Engine) {
 
 	// ================================== 关于失物招领管理员 ==================================
 
-	admin := api.Group("/admin/posts")
+	admin := api.Group("/admin")
 	admin.Use(middlewares.ParseJwt())
 	admin.Use(middlewares.RequireRole("失物招领管理员", "系统管理员"))
 	{
-		admin.GET("", admin_controller.GetAdminPosts)               // 获取所有帖子
-		admin.PATCH("/:post_id/audit", admin_controller.AuditPost)  //审核帖子
-		admin.DELETE("/:post_id", admin_controller.AdminDeletePost) //删除帖子
+		admin.GET("/posts", admin_controller.GetAdminPosts)                // 获取所有帖子
+		admin.PATCH("/post/:post_id/audit", admin_controller.AuditPost)    //审核帖子
+		admin.DELETE("/:post_id/delete", admin_controller.AdminDeletePost) //删除帖子
 	}
 
 	// ================================== 关于系统管理员 ==================================
@@ -70,7 +70,8 @@ func Router(c *gin.Engine) {
 	sysadmin.Use(middlewares.ParseJwt())
 	sysadmin.Use(middlewares.RequireRole("系统管理员"))
 	{
-		sysadmin.GET("/users", sysadmin_controller.GetUsers)                   //查询所有用户
-		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole) // 修改用户角色
+		sysadmin.GET("/users", sysadmin_controller.GetUsers)                           //查询所有用户
+		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole)         // 修改用户角色
+		sysadmin.POST("/announcements/create", sysadmin_controller.CreateAnnouncement) //发布公告
 	}
 }

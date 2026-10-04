@@ -63,3 +63,17 @@ func UpdateRole(operatorID int, userID int, role string) error {
 
 	return nil
 }
+
+// 发布公告
+func CreateAnnouncement(title string, content string) (*models.Announcement, error) {
+	var announcement = models.Announcement{
+		Title:   title,
+		Content: content,
+	}
+	err := database.DB.Model(&models.Announcement{}).Create(&announcement).Error
+	if err != nil {
+		return nil, errs.ErrDatabase
+	}
+
+	return &announcement, nil
+}
