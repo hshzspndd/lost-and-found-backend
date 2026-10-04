@@ -325,3 +325,28 @@ func AdminDeletePost(postID int) error {
 
 	return nil
 }
+
+// ================================================== 管理员改变帖子的解决状态 ==================================================
+
+// 管理员改变帖子的解决状态
+func AdminResolvePost(postID int, resolveStatus string) error {
+	var post models.Post
+	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errs.ErrPostNotFound
+		}
+		return errs.ErrDatabase
+	}
+
+	if post.IsResolve == resolveStatus {
+		return nil
+	}
+
+	err = database.DB.Model(&post).Update("is_resolve", resolveStatus).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+
+	return nil
+}
