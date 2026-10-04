@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"errors"
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/utils"
 	"lost-and-found-backend/configs/config"
@@ -22,6 +23,9 @@ func ParseJwt() gin.HandlerFunc {
 		}
 		tokenString := authorizationList[1]
 		token, err := jwt.ParseWithClaims(tokenString, &utils.Claims{}, func(t *jwt.Token) (any, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, errors.New("unexpected signing method")
+			}
 			return []byte(config.Config.GetString("jwt.key")), nil
 		})
 		if err != nil || !token.Valid {

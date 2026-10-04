@@ -121,6 +121,9 @@ func CheckUserExists(userID int, username string, phoneNum string) (bool, error)
 func GetProfile(userID int) (*models.User, error) {
 	var user models.User
 	err := database.DB.Model(&models.User{}).Where("user_id = ?", userID).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, errs.ErrUserNotFound
+	}
 	if err != nil {
 		return nil, errs.ErrDatabase
 	}
