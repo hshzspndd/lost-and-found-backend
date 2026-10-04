@@ -19,6 +19,7 @@ type MyPostListResp struct {
 	Contact       string    `json:"contact"`
 	Description   string    `json:"description"`
 	ImageUrl      string    `json:"image_url"`
+	IsResolve     string    `json:"is_resolve"`
 	Status        string    `json:"status"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
@@ -73,6 +74,7 @@ func GetMyPosts(c *gin.Context) {
 			Contact:       post.Contact,
 			Description:   post.Description,
 			ImageUrl:      post.ImageUrl,
+			IsResolve:     post.IsResolve,
 			Status:        post.Status,
 			CreatedAt:     post.CreatedAt,
 			UpdatedAt:     post.UpdatedAt,
