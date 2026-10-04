@@ -42,7 +42,7 @@ var (
 	ErrStatusInvalid   = &ResponseErrorForm{409, 2008, "当前状态不允许此操作"}
 	ErrPostNotEditable = &ResponseErrorForm{409, 2009, "当前状态不允许编辑"}
 
-	//================================== 关于管理员 ==================================
+	//================================== 关于公告 ==================================
 
 	ErrAnnouncementNotFound = &ResponseErrorForm{404, 3001, "公告不存在"}
 )
