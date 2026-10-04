@@ -49,7 +49,7 @@ func UploadImage(c *gin.Context) {
 	}
 
 	// 拼接返回给前端的 URL
-	baseUrl := config.Config.GetString("app.base_url")
+	baseUrl := config.Config.GetString("upload.base_url")
 	imageUrl := fmt.Sprintf("%s/images/%s", baseUrl, newFileName)
 
 	utils.ResponseSuccess(c, ImageUrlResp{
