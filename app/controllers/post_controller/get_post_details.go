@@ -24,6 +24,7 @@ type PostDetailsResp struct {
 	Contact       string    `json:"contact"`
 	Description   string    `json:"description"`
 	ImageUrl      string    `json:"image_url"`
+	IsResolve     string    `json:"is_resolve"`
 	CreatedAt     time.Time `json:"created_at"`
 }
 
@@ -56,6 +57,7 @@ func GetPostDetails(c *gin.Context) {
 		Contact:       post.Contact,
 		Description:   post.Description,
 		ImageUrl:      post.ImageUrl,
+		IsResolve:     post.IsResolve,
 		CreatedAt:     post.CreatedAt,
 	}
 
