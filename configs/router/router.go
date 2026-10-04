@@ -42,6 +42,7 @@ func Router(c *gin.Engine) {
 		auth.DELETE("/my/posts/:post_id", post_controller.DeleteMyPost) //删除我的帖子
 		auth.GET("/posts/:post_id", post_controller.GetPostDetails)     //获取帖子详情
 		auth.PATCH("/posts/:post_id/resolve", post_controller.Resolve)  //帖子的解决与撤销解决
+		auth.PUT("/my/posts/:post_id", post_controller.UpdateMyPost)    //编辑并重新提交帖子
 
 		// ================================== 关于联系人 ==================================
 		auth.POST("/contacts", contact_controller.AddContact)    //添加联系人

@@ -40,6 +40,7 @@ var (
 	ErrPostNotFound    = &ResponseErrorForm{404, 2006, "帖子不存在"}
 	ErrIsNotYourPost   = &ResponseErrorForm{403, 2007, "这不是你的帖子"}
 	ErrStatusInvalid   = &ResponseErrorForm{409, 2008, "当前状态不允许此操作"}
+	ErrPostNotEditable = &ResponseErrorForm{409, 2009, "当前状态不允许编辑"}
 
 	//================================== 关于管理员 ==================================
 

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/models"
 	"lost-and-found-backend/configs/database"
@@ -344,6 +345,47 @@ func AdminResolvePost(postID int, resolveStatus string) error {
 	}
 
 	err = database.DB.Model(&post).Update("is_resolve", resolveStatus).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+
+	return nil
+}
+
+// ================================================== 编辑并重新提交帖子 ==================================================
+
+// 编辑并重新提交帖子
+func UpdateMyPost(postID int, userID int, title string, eventLocaton string, eventTime string, contact string, description string, imageUrl string) error {
+	var post models.Post
+	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.ErrPostNotFound
+		}
+		return errs.ErrDatabase
+	}
+
+	if post.UserID != userID {
+		return errs.ErrIsNotYourPost
+	}
+
+	// 状态校验：只有“已驳回”或“待审核”的帖子才能编辑
+	if post.Status != "已驳回" && post.Status != "待审核" {
+		return errs.ErrPostNotEditable
+	}
+
+	// 更新内容，并重置为待审核
+	updateData := map[string]interface{}{
+		"title":          title,
+		"event_location": eventLocaton,
+		"event_time":     eventTime,
+		"contact":        contact,
+		"description":    description,
+		"image_url":      imageUrl,
+		"status":         "待审核",
+	}
+
+	err = database.DB.Model(&post).Updates(updateData).Error
 	if err != nil {
 		return errs.ErrDatabase
 	}
