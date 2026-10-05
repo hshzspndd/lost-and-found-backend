@@ -9,7 +9,6 @@ import (
 )
 
 type ContactData struct {
-	OwnerID   int    `json:"owner_id" binding:"required"`
 	ContactID int    `json:"id" binding:"required"`
 	StudentID string `json:"student_id" binding:"required"`
 	Name      string `json:"name" binding:"required"`
