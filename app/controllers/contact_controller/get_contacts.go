@@ -1,7 +1,6 @@
 package contact_controller
 
 import (
-	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 	"strconv"
@@ -30,16 +29,9 @@ type ContactsResp struct {
 func GetContacts(c *gin.Context) {
 
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if err != nil {
-		c.Error(errs.ErrInvalidQuery)
-		c.Abort()
-		return
-	}
-
-	if page < 1 {
+	if err != nil || page < 1 {
 		page = 1
 	}
-
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 

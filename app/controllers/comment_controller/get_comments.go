@@ -26,13 +26,7 @@ type CommentsResp struct {
 
 func GetComments(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if err != nil {
-		c.Error(errs.ErrInvalidQuery)
-		c.Abort()
-		return
-	}
-
-	if page < 1 {
+	if err != nil || page < 1 {
 		page = 1
 	}
 

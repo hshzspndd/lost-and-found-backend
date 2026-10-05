@@ -1,7 +1,6 @@
 package admin_controller
 
 import (
-	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 	"strconv"
@@ -44,13 +43,7 @@ func GetAdminPosts(c *gin.Context) {
 		pageStr = "1"
 	}
 	page, err := strconv.Atoi(pageStr)
-	if err != nil {
-		c.Error(errs.ErrInvalidQuery)
-		c.Abort()
-		return
-	}
-
-	if page < 1 {
+	if err != nil || page < 1 {
 		page = 1
 	}
 
