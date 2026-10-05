@@ -26,11 +26,11 @@ type AnnouncementsResp struct {
 // 获取公告列表
 func GetAnnouncements(c *gin.Context) {
 	var pageSize = 15
-	pageStr := c.Query("page")
+
+	pageStr := c.DefaultQuery("page", "1")
 	if pageStr == "" {
 		pageStr = "1"
 	}
-
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page < 1 {
 		page = 1
