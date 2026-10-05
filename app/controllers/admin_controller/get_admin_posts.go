@@ -33,6 +33,7 @@ type AdminPostsResp struct {
 
 // 管理员获取所有帖子
 func GetAdminPosts(c *gin.Context) {
+	var pageSize = 15
 
 	postType := c.Query("post_type")
 	status := c.Query("status")
@@ -47,7 +48,7 @@ func GetAdminPosts(c *gin.Context) {
 		page = 1
 	}
 
-	postList, total, err := services.AdminGetAllPosts(page, postType, status, isResolve)
+	postList, total, err := services.AdminGetAllPosts(page, postType, status, isResolve, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -76,7 +77,7 @@ func GetAdminPosts(c *gin.Context) {
 		List:     postListResp,
 		Total:    total,
 		Page:     page,
-		PageSize: 15,
+		PageSize: pageSize,
 	}
 
 	utils.ResponseSuccess(c, resp)

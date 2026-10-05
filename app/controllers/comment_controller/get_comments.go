@@ -25,6 +25,7 @@ type CommentsResp struct {
 }
 
 func GetComments(c *gin.Context) {
+
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
 		page = 1

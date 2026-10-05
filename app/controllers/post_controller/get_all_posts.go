@@ -31,7 +31,7 @@ type PostsResp struct {
 
 // 获取公开帖子列表
 func GetAllPosts(c *gin.Context) {
-
+	var pageSize = 15
 	postType := c.Query("post_type")
 
 	isResolve := c.DefaultQuery("is_resolve", "未解决")
@@ -48,7 +48,7 @@ func GetAllPosts(c *gin.Context) {
 		page = 1
 	}
 
-	postList, total, err := services.GetAllPosts(page, postType, isResolve)
+	postList, total, err := services.GetAllPosts(page, postType, isResolve, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -75,7 +75,7 @@ func GetAllPosts(c *gin.Context) {
 		List:     postListResp,
 		Total:    total,
 		Page:     page,
-		PageSize: 15,
+		PageSize: pageSize,
 	}
 
 	utils.ResponseSuccess(c, resp)

@@ -24,6 +24,8 @@ type UsersResp struct {
 
 // 获取所有用户
 func GetUsers(c *gin.Context) {
+	var pageSize = 15
+
 	role := c.Query("role")
 	pageStr := c.DefaultQuery("page", "1")
 	if pageStr == "" {
@@ -34,7 +36,7 @@ func GetUsers(c *gin.Context) {
 		page = 1
 	}
 
-	userList, total, err := services.GetAllUsers(page, role)
+	userList, total, err := services.GetAllUsers(page, role, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -55,7 +57,7 @@ func GetUsers(c *gin.Context) {
 		List:     userListResp,
 		Total:    total,
 		Page:     page,
-		PageSize: 15,
+		PageSize: pageSize,
 	}
 
 	utils.ResponseSuccess(c, resp)

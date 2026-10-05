@@ -83,9 +83,8 @@ func CreatePost(userID int, postType, title, eventLocation, eventTime, contact, 
 // ================================================== 查询帖子 ==================================================
 
 // 查询所有帖子
-func GetAllPosts(page int, postType string, isResolve string) ([]models.Post, int, error) {
+func GetAllPosts(page int, postType string, isResolve string, pageSize int) ([]models.Post, int, error) {
 	var total int64
-	var pageSize int = 15
 
 	posts := make([]models.Post, 0)
 
@@ -118,9 +117,8 @@ func GetAllPosts(page int, postType string, isResolve string) ([]models.Post, in
 }
 
 // 查询自己的帖子
-func GetMyPosts(userID int, page int, status string, postType string, isResolve string) ([]models.Post, int, error) {
+func GetMyPosts(userID int, page int, status string, postType string, isResolve string, pageSize int) ([]models.Post, int, error) {
 	var total int64
-	var pageSize int = 15
 
 	posts := make([]models.Post, 0)
 
@@ -246,9 +244,8 @@ func Resolve(postID int, userID int, resolveStatus string) error {
 
 // ================================================== 管理员查询所有帖子 ==================================================
 
-func AdminGetAllPosts(page int, postType string, status string, isResolve string) ([]models.Post, int, error) {
+func AdminGetAllPosts(page int, postType string, status string, isResolve string, pageSize int) ([]models.Post, int, error) {
 	var total int64
-	var pageSize int = 15
 
 	posts := make([]models.Post, 0)
 	query := database.DB.Model(&models.Post{})

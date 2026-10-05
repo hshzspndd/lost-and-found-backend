@@ -9,9 +9,8 @@ import (
 )
 
 // 查询所有用户
-func GetAllUsers(page int, role string) ([]models.User, int, error) {
+func GetAllUsers(page int, role string, pageSize int) ([]models.User, int, error) {
 	var total int64
-	var pageSize int = 15
 	users := make([]models.User, 0)
 
 	query := database.DB.Model(&models.User{})

@@ -33,6 +33,7 @@ type MyPostsResp struct {
 
 // 查询自己的帖子
 func GetMyPosts(c *gin.Context) {
+	var pageSize = 15
 	postType := c.Query("post_type")
 	status := c.Query("status")
 	isResolve := c.Query("is_resolve")
@@ -49,7 +50,7 @@ func GetMyPosts(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	postList, total, err := services.GetMyPosts(claims.UserID, page, status, postType, isResolve)
+	postList, total, err := services.GetMyPosts(claims.UserID, page, status, postType, isResolve, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -78,7 +79,7 @@ func GetMyPosts(c *gin.Context) {
 		List:     postListResp,
 		Total:    total,
 		Page:     page,
-		PageSize: 15,
+		PageSize: pageSize,
 	}
 
 	utils.ResponseSuccess(c, resp)
