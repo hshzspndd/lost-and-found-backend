@@ -45,5 +45,10 @@ func InitDB() {
 		panic("公告数据库创建失败：" + err.Error())
 	}
 
+	//创建评论数据库
+	err = db.AutoMigrate(&models.Comment{})
+	if err != nil {
+		panic("评论数据库创建失败：" + err.Error())
+	}
 	DB = db
 }
