@@ -10,7 +10,7 @@ import (
 )
 
 type CreateAnnouncementData struct {
-	Title   string `json:"title" binding:"required"`
+	Title   string `json:"title" binding:"required,max=100"`
 	Content string `json:"content" binding:"required"`
 }
 
