@@ -31,9 +31,14 @@ func IsLoginLocked(key string) bool {
 	if !ok {
 		return false
 	}
+
+	if a.lockedUntil.IsZero() {
+		return false
+	}
 	if time.Now().Before(a.lockedUntil) {
 		return true
 	}
+
 	delete(loginAttempts, key)
 	return false
 }
