@@ -10,10 +10,10 @@ import (
 )
 
 type UpdateMyPostData struct {
-	Title         string `json:"title" binding:"required"`
-	EventLocation string `json:"event_location" binding:"required"`
-	EventTime     string `json:"event_time" binding:"required"`
-	Contact       string `json:"contact" binding:"required"`
+	Title         string `json:"title" binding:"required,max=20"`
+	EventLocation string `json:"event_location" binding:"required,max=20"`
+	EventTime     string `json:"event_time" binding:"required,max=20"`
+	Contact       string `json:"contact" binding:"required,max=20"`
 	Description   string `json:"description" binding:"max=150"`
 	ImageUrl      string `json:"image_url"`
 }

@@ -181,8 +181,8 @@ func GetPostDetails(postID int, userID int, role string) (*models.Post, error) {
 
 // 删除自己的帖子
 func DeleteMyPost(postID, userID int) error {
-	res := database.DB.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", postID, userID).Delete(&models.Post{})
 	result := database.DB.Model(&models.Comment{}).Where("post_id = ?", postID).Delete(&models.Comment{})
+	res := database.DB.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", postID, userID).Delete(&models.Post{})
 
 	if res.Error != nil || result.Error != nil {
 		return errs.ErrDatabase
@@ -312,8 +312,8 @@ func AuditPost(postID int, status string) error {
 
 // 管理员删除帖子
 func AdminDeletePost(postID int) error {
-	res := database.DB.Delete(&models.Post{}, postID)
 	result := database.DB.Where("post_id = ?", postID).Delete(&models.Comment{})
+	res := database.DB.Delete(&models.Post{}, postID)
 
 	if res.Error != nil || result.Error != nil {
 		return errs.ErrDatabase
