@@ -19,12 +19,14 @@ type CommentListResp struct {
 }
 
 type CommentsResp struct {
-	List  []CommentListResp `json:"list"`
-	Total int               `json:"total"`
-	Page  int               `json:"page"`
+	List     []CommentListResp `json:"list"`
+	Total    int               `json:"total"`
+	Page     int               `json:"page"`
+	PageSize int               `json:"page_size"`
 }
 
 func GetComments(c *gin.Context) {
+	var pageSize = 30
 
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
@@ -39,7 +41,7 @@ func GetComments(c *gin.Context) {
 		return
 	}
 
-	commentList, total, err := services.GetComments(page, postID)
+	commentList, total, err := services.GetComments(page, postID, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -52,14 +54,16 @@ func GetComments(c *gin.Context) {
 			CommentID: comment.CommentID,
 			PostID:    comment.PostID,
 			UserID:    comment.UserID,
+			Content:   comment.Content,
 			CreatedAt: comment.CreatedAt,
 		})
 	}
 
 	resp := CommentsResp{
-		List:  commentListResp,
-		Total: total,
-		Page:  page,
+		List:     commentListResp,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
 	}
 
 	utils.ResponseSuccess(c, resp)
