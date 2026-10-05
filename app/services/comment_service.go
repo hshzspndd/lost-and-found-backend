@@ -25,13 +25,12 @@ func CreateComment(postID, userID int, content string) (*models.Comment, error) 
 
 // ================================================== 获取评论 ==================================================
 
-func GetComments(page, postID int) ([]models.Comment, int, error) {
+func GetComments(page, postID int, pageSize int) ([]models.Comment, int, error) {
 	var total int64
-	var pageSize int = 30
 
 	comments := make([]models.Comment, 0)
 
-	query := database.DB.Model(&models.Comment{}).Where("PostID = ?", postID)
+	query := database.DB.Model(&models.Comment{}).Where("post_id = ?", postID)
 
 	//获取评论总数
 	err := query.Count(&total).Error
