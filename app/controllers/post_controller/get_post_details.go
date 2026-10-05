@@ -10,10 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PostDetailsRequest struct {
-	PostID int `json:"post_id"`
-}
-
 type PostDetailsResp struct {
 	PostID        int       `json:"post_id" gorm:"primarykey;autoIncrement"`
 	UserID        int       `json:"user_id"`
