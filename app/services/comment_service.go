@@ -14,7 +14,7 @@ func CreateComment(postID, userID int, content string) (*models.Comment, error) 
 		UserID:  userID,
 		Content: content,
 	}
-	err := database.DB.Model(&models.Contact{}).Create(&comment).Error
+	err := database.DB.Model(&models.Comment{}).Create(&comment).Error
 	if err != nil {
 		return nil, errs.ErrDatabase
 	}

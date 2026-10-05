@@ -49,8 +49,8 @@ func Router(c *gin.Engine) {
 		auth.GET("/my/contacts", contact_controller.GetContacts) //查询联系人列表
 
 		// ================================== 关于评论 ==================================
-		auth.POST("/comments", comment_controller.CreateComment) //发布评论
-		auth.GET("/comments", comment_controller.GetComments)    //获取评论
+		auth.POST("/posts/:post_id/comments", comment_controller.CreateComment) //发布评论
+		auth.GET("/comments", comment_controller.GetComments)                   //获取评论
 	}
 
 	// ================================== 关于失物招领管理员 ==================================

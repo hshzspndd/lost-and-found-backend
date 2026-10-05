@@ -10,7 +10,7 @@ import (
 )
 
 type CommentData struct {
-	Contact string `json:"contact" binding:"required"`
+	Content string `json:"content" binding:"required"`
 }
 
 type CommentResp struct {
@@ -40,7 +40,7 @@ func CreateComment(c *gin.Context) {
 		return
 	}
 
-	comment, err := services.CreateComment(postID, claims.UserID, data.Contact)
+	comment, err := services.CreateComment(postID, claims.UserID, data.Content)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
