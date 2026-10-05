@@ -74,7 +74,7 @@ func CheckUserExistsByPhoneNum(phoneNum string) (*models.User, error) {
 	if err == gorm.ErrRecordNotFound {
 		return nil, errs.ErrUserNotFound
 	} else if err != nil {
-		return nil, errs.ErrDatabase
+		return nil, errs.ErrUserCheckFail
 	} else {
 		return &user, nil
 	}
