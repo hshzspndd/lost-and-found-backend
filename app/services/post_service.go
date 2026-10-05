@@ -181,24 +181,23 @@ func GetPostDetails(postID int, userID int, role string) (*models.Post, error) {
 
 // 删除自己的帖子
 func DeleteMyPost(postID, userID int) error {
-	result := database.DB.Model(&models.Comment{}).Where("post_id = ?", postID).Delete(&models.Comment{})
-	res := database.DB.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", postID, userID).Delete(&models.Post{})
-
-	if res.Error != nil || result.Error != nil {
-		return errs.ErrDatabase
-	}
-
-	if res.RowsAffected == 0 {
-		postExists, err := CheckPostExistByPostID(postID)
-		if err != nil {
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		res := tx.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", postID, userID).Delete(&models.Post{})
+		if res.Error != nil {
 			return errs.ErrDatabase
 		}
-		if !postExists {
-			return errs.ErrPostNotFound
+		if res.RowsAffected == 0 {
+			postExists, err := CheckPostExistByPostID(postID)
+			if err != nil {
+				return errs.ErrDatabase
+			}
+			if !postExists {
+				return errs.ErrPostNotFound
+			}
+			return errs.ErrIsNotYourPost
 		}
-		return errs.ErrIsNotYourPost
-	}
-	return nil
+		return tx.Model(&models.Comment{}).Where("post_id = ?", postID).Delete(&models.Comment{}).Error
+	})
 }
 
 func CheckPostExistByPostID(postID int) (bool, error) {
@@ -312,18 +311,16 @@ func AuditPost(postID int, status string) error {
 
 // 管理员删除帖子
 func AdminDeletePost(postID int) error {
-	result := database.DB.Where("post_id = ?", postID).Delete(&models.Comment{})
-	res := database.DB.Delete(&models.Post{}, postID)
-
-	if res.Error != nil || result.Error != nil {
-		return errs.ErrDatabase
-	}
-
-	if res.RowsAffected == 0 {
-		return errs.ErrPostNotFound
-	}
-
-	return nil
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		res := tx.Delete(&models.Post{}, postID)
+		if res.Error != nil {
+			return errs.ErrDatabase
+		}
+		if res.RowsAffected == 0 {
+			return errs.ErrPostNotFound
+		}
+		return tx.Where("post_id = ?", postID).Delete(&models.Comment{}).Error
+	})
 }
 
 // ================================================== 管理员改变帖子的解决状态 ==================================================

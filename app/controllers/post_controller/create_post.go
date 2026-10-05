@@ -14,7 +14,7 @@ type PostData struct {
 	EventLocation string `json:"event_location" binding:"required,max=20"`
 	EventTime     string `json:"event_time" binding:"required,max=20"`
 	Contact       string `json:"contact" binding:"required,max=20"`
-	Description   string `json:"description" binding:"max=150,max=150"`
+	Description   string `json:"description" binding:"max=150"`
 	ImageUrl      string `json:"image_url"`
 }
 
