@@ -35,7 +35,7 @@ func GetAllPosts(c *gin.Context) {
 	postType := c.Query("post_type")
 
 	isResolve := c.DefaultQuery("is_resolve", "未解决")
-	if isResolve == "" {
+	if isResolve != "未解决" && isResolve != "已解决" {
 		isResolve = "未解决"
 	}
 
