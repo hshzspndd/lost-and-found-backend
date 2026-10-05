@@ -336,6 +336,11 @@ func AdminResolvePost(postID int, resolveStatus string) error {
 		return errs.ErrDatabase
 	}
 
+	// 只有已通过审核的帖子才能标记解决状态
+	if post.Status != "已通过" {
+		return errs.ErrStatusInvalid
+	}
+
 	if post.IsResolve == resolveStatus {
 		return nil
 	}
