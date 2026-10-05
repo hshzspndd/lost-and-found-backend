@@ -29,6 +29,7 @@ var (
 	ErrSamePassword     = &ResponseErrorForm{400, 1013, "新旧密码相同"}
 	ErrWrongOldPassword = &ResponseErrorForm{400, 1014, "旧密码错误"}
 	ErrNameTooLong      = &ResponseErrorForm{400, 1015, "用户名限制长度为50字符"}
+	ErrLoginLocked      = &ResponseErrorForm{429, 1016, "登录失败次数过多，账号已锁定，请15分钟后再试"}
 
 	//================================== 关于帖子 ==================================
 
