@@ -73,5 +73,6 @@ func Router(c *gin.Engine) {
 		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole)                         // 修改用户角色
 		sysadmin.POST("/announcements", announcement_controller.CreateAnnouncement)                    //发布公告
 		sysadmin.DELETE("/announcements/:announcement_id", announcement_controller.DeleteAnnouncement) //删除公告
+		sysadmin.GET("/stats", sysadmin_controller.GetStats)                                           //获取系统数据
 	}
 }
