@@ -88,6 +88,11 @@ func CheckPassword(hashedPassword string, inputPassword string) bool {
 
 // 登录
 func Login(phoneNum string, password string) (*models.User, error) {
+	// 检查该账号是否已被锁定
+	if utils.IsLoginLocked(phoneNum) {
+		return nil, errs.ErrLoginLocked
+	}
+
 	user, err := CheckUserExistsByPhoneNum(phoneNum)
 	if err != nil {
 		return nil, err
@@ -95,8 +100,13 @@ func Login(phoneNum string, password string) (*models.User, error) {
 
 	result := CheckPassword(user.Password, password)
 	if !result {
+		// 密码错误，记录一次失败
+		utils.RecordLoginFail(phoneNum)
 		return nil, errs.ErrWrongPassword
 	}
+
+	// 清零失败计数
+	utils.ResetLoginFail(phoneNum)
 
 	return user, nil
 
