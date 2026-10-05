@@ -20,14 +20,15 @@ type ContactListResp struct {
 }
 
 type ContactsResp struct {
-	List  []ContactListResp `json:"list"`
-	Total int               `json:"total"`
-	Page  int               `json:"page"`
+	List     []ContactListResp `json:"list"`
+	Total    int               `json:"total"`
+	Page     int               `json:"page"`
+	PageSize int               `json:"page_size"`
 }
 
 // 获取公开帖子列表
 func GetContacts(c *gin.Context) {
-
+	var pageSize = 15
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
 		page = 1
@@ -35,7 +36,7 @@ func GetContacts(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	contactList, total, err := services.GetContacts(page, claims.UserID)
+	contactList, total, err := services.GetContacts(page, claims.UserID, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -57,9 +58,10 @@ func GetContacts(c *gin.Context) {
 	}
 
 	resp := ContactsResp{
-		List:  contactListResp,
-		Total: total,
-		Page:  page,
+		List:     contactListResp,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
 	}
 
 	utils.ResponseSuccess(c, resp)
