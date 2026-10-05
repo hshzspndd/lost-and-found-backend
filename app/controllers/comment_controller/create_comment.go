@@ -5,6 +5,7 @@ import (
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,10 +15,11 @@ type CommentData struct {
 }
 
 type CommentResp struct {
-	CommentID int    `json:"comment_id"`
-	PostID    int    `json:"post_id"`
-	UserID    int    `json:"user_id"`
-	Content   string `json:"content"`
+	CommentID int       `json:"comment_id"`
+	PostID    int       `json:"post_id"`
+	UserID    int       `json:"user_id"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func CreateComment(c *gin.Context) {
@@ -52,6 +54,7 @@ func CreateComment(c *gin.Context) {
 		PostID:    comment.PostID,
 		UserID:    comment.UserID,
 		Content:   comment.Content,
+		CreatedAt: comment.CreatedAt,
 	}
 
 	utils.ResponseSuccess(c, resp)
