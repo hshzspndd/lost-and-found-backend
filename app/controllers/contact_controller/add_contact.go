@@ -9,7 +9,6 @@ import (
 )
 
 type ContactData struct {
-	ContactID int    `json:"id" binding:"required"`
 	StudentID string `json:"student_id" binding:"required"`
 	Name      string `json:"name" binding:"required"`
 	Sex       string `json:"sex" binding:"required"`
@@ -41,7 +40,7 @@ func AddContact(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	contact, err := services.AddContact(claims.UserID, data.ContactID, data.StudentID, data.Name, data.Sex, data.PhoneNum, data.Major, data.Note)
+	contact, err := services.AddContact(claims.UserID, data.StudentID, data.Name, data.Sex, data.PhoneNum, data.Major, data.Note)
 	if err != nil {
 		c.Error(err)
 		c.Abort()

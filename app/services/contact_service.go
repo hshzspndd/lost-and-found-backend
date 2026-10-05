@@ -8,10 +8,9 @@ import (
 
 // ================================================== 新增联系人 ==================================================
 
-func AddContact(ownerID, contactID int, studentID, name, sex, phoneNum, major, note string) (*models.Contact, error) {
+func AddContact(ownerID int, studentID, name, sex, phoneNum, major, note string) (*models.Contact, error) {
 	var contact = models.Contact{
 		OwnerID:   ownerID,
-		ContactID: contactID,
 		StudentID: studentID,
 		Name:      name,
 		Sex:       sex,
