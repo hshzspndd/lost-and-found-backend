@@ -38,7 +38,7 @@ func UploadImage(c *gin.Context) {
 	}
 
 	//修改文件名
-	newFileName := fmt.Sprintf("%d_%d%s", time.Now().Unix(), rand.Intn(10000), ext)
+	newFileName := fmt.Sprintf("%d_%d%s", time.Now().UnixNano(), rand.Intn(10000), ext)
 	dst := filepath.Join("./images", newFileName)
 
 	// 保存文件
