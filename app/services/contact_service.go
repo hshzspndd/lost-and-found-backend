@@ -35,7 +35,7 @@ func GetContacts(page, ownerID, pageSize int) ([]models.Contact, int, error) {
 
 	contacts := make([]models.Contact, 0)
 
-	query := database.DB.Model(&models.Contact{}).Where("OwnerID = ?", ownerID)
+	query := database.DB.Model(&models.Contact{}).Where("owner_id = ?", ownerID)
 
 	//获取联系人总数
 	err := query.Count(&total).Error
