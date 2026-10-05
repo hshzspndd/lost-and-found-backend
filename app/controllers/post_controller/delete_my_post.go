@@ -28,5 +28,5 @@ func DeleteMyPost(c *gin.Context) {
 		return
 	}
 
-	utils.ResponseSuccess(c, "帖子删除成功")
+	utils.ResponseSuccess(c, nil)
 }
