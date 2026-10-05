@@ -42,7 +42,7 @@ func Register(username string, phoneNum string, password string, role string, in
 
 	userExists, err := CheckRegisterUserExists(username, phoneNum)
 	if err != nil {
-		return nil, errs.ErrUserCheckFail //用户信息校验失败
+		return nil, errs.ErrUserCheckFail //用户信息查询失败
 	}
 	if userExists {
 		return nil, errs.ErrUserExists //用户已存在
