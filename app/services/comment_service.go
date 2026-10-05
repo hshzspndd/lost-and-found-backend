@@ -55,7 +55,7 @@ func GetComments(page, postID int, pageSize int) ([]models.Comment, int, error) 
 	offset := (page - 1) * pageSize
 
 	//分页查询
-	err = query.Offset(offset).Limit(pageSize).Find(&comments).Error
+	err = query.Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&comments).Error
 	if err != nil {
 		return nil, 0, errs.ErrDatabase
 	}
