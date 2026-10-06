@@ -140,7 +140,7 @@ type PostClaimWithUser struct {
 }
 
 // 查询自己帖子收到的认领申请
-func GetPostClaims(postID int, authorID int, status string, page int, pageSize int) ([]PostClaimWithUser, int, error) {
+func GetPostClaims(postID int, authorID int, page int, pageSize int) ([]PostClaimWithUser, int, error) {
 	var total int64
 	claims := make([]PostClaimWithUser, 0)
 
@@ -156,10 +156,6 @@ func GetPostClaims(postID int, authorID int, status string, page int, pageSize i
 	}
 
 	query := database.DB.Model(&models.Claim{}).Where("post_id = ?", postID)
-	if status != "" && (status == "待处理" || status == "已同意" || status == "已拒绝") {
-		query = query.Where("status = ?", status)
-	}
-
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, errs.ErrDatabase
 	}

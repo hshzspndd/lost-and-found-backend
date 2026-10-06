@@ -19,7 +19,6 @@ type GetPostClaimResp struct {
 // 获取自己帖子收到的认领申请
 func GetPostClaims(c *gin.Context) {
 	var pageSize = 15
-	status := c.Query("status")
 	postID, err := strconv.Atoi(c.Param("post_id"))
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
@@ -38,7 +37,7 @@ func GetPostClaims(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	list, total, err := services.GetPostClaims(postID, claims.UserID, status, page, pageSize)
+	list, total, err := services.GetPostClaims(postID, claims.UserID, page, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
