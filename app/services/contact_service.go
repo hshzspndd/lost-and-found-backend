@@ -10,10 +10,9 @@ import (
 
 // ================================================== 新增联系人 ==================================================
 
-func AddContact(ownerID, contactID int, studentID, name, sex, phoneNum, major, note string) (*models.Contact, error) {
+func AddContact(ownerID int, studentID, name, sex, phoneNum, major, note string) (*models.Contact, error) {
 	var contact = models.Contact{
 		OwnerID:   ownerID,
-		ContactID: contactID,
 		StudentID: studentID,
 		Name:      name,
 		Sex:       sex,
@@ -32,13 +31,12 @@ func AddContact(ownerID, contactID int, studentID, name, sex, phoneNum, major, n
 
 // ================================================== 获取联系人列表 ==================================================
 
-func GetContacts(page, ownerID int) ([]models.Contact, int, error) {
+func GetContacts(page, ownerID, pageSize int) ([]models.Contact, int, error) {
 	var total int64
-	var pageSize int = 15
 
 	contacts := make([]models.Contact, 0)
 
-	query := database.DB.Model(&models.Contact{}).Where("OwnerID = ?", ownerID)
+	query := database.DB.Model(&models.Contact{}).Where("owner_id = ?", ownerID)
 
 	//获取联系人总数
 	err := query.Count(&total).Error

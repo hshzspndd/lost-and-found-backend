@@ -1,4 +1,4 @@
-package post_controller
+package admin_controller
 
 import (
 	"lost-and-found-backend/app/errs"
@@ -9,20 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 删除我的帖子
-func DeleteMyPost(c *gin.Context) {
-	postIDUrl := c.Param("contact_id")
-	postID, err := strconv.Atoi(postIDUrl)
+// 管理员删除帖子
+func AdminDeletePost(c *gin.Context) {
+	postID, err := strconv.Atoi(c.Param("post_id"))
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
 		return
 	}
 
-	val, _ := c.Get("claims")
-	claims := val.(*utils.Claims)
-
-	err = services.DeleteMyPost(postID, claims.UserID)
+	err = services.AdminDeletePost(postID)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -30,4 +26,5 @@ func DeleteMyPost(c *gin.Context) {
 	}
 
 	utils.ResponseSuccess(c, nil)
+
 }

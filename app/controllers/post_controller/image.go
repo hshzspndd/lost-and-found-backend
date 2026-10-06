@@ -38,7 +38,7 @@ func UploadImage(c *gin.Context) {
 	}
 
 	//修改文件名
-	newFileName := fmt.Sprintf("%d_%d%s", time.Now().Unix(), rand.Intn(10000), ext)
+	newFileName := fmt.Sprintf("%d_%d%s", time.Now().UnixNano(), rand.Intn(10000), ext)
 	dst := filepath.Join("./images", newFileName)
 
 	// 保存文件
@@ -49,7 +49,7 @@ func UploadImage(c *gin.Context) {
 	}
 
 	// 拼接返回给前端的 URL
-	baseUrl := config.Config.GetString("app.base_url")
+	baseUrl := config.Config.GetString("upload.base_url")
 	imageUrl := fmt.Sprintf("%s/images/%s", baseUrl, newFileName)
 
 	utils.ResponseSuccess(c, ImageUrlResp{

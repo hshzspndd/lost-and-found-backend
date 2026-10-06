@@ -1,8 +1,8 @@
 package models
 
 type Contact struct {
-	OwnerID   int    `json:"owner_id" gorm:"primarykey;autoIncrement"`
-	ContactID int    `json:"id"`
+	ContactID int    `json:"contact_id" gorm:"primarykey;autoIncrement"`
+	OwnerID   int    `json:"owner_id"`
 	StudentID string `json:"student_id"`
 	Name      string `json:"name"`
 	Sex       string `json:"sex"`

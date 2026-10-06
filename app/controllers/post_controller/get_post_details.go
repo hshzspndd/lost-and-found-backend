@@ -4,14 +4,11 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
-
-type PostDetailsRequest struct {
-	PostID int `json:"post_id"`
-}
 
 type PostDetailsResp struct {
 	PostID        int       `json:"post_id"`
@@ -23,21 +20,23 @@ type PostDetailsResp struct {
 	Contact       string    `json:"contact"`
 	Description   string    `json:"description"`
 	ImageUrl      string    `json:"image_url"`
-	Status        string    `json:"status"`
+	IsResolve     string    `json:"is_resolve"`
 	CreatedAt     time.Time `json:"created_at"`
 }
 
 // 获取帖子详情
 func GetPostDetails(c *gin.Context) {
-	var gpd PostDetailsRequest
-	err := c.ShouldBindJSON(&gpd)
+	postID, err := strconv.Atoi(c.Param("post_id"))
 	if err != nil {
-		c.Error(errs.ErrBindJSON)
+		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
 		return
 	}
 
-	post, err := services.GetPostDetails(gpd.PostID)
+	val, _ := c.Get("claims")
+	claims := val.(*utils.Claims)
+
+	post, err := services.GetPostDetails(postID, claims.UserID, claims.Role)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -54,6 +53,7 @@ func GetPostDetails(c *gin.Context) {
 		Contact:       post.Contact,
 		Description:   post.Description,
 		ImageUrl:      post.ImageUrl,
+		IsResolve:     post.IsResolve,
 		CreatedAt:     post.CreatedAt,
 	}
 

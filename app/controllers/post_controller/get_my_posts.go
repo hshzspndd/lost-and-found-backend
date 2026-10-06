@@ -1,7 +1,6 @@
 package post_controller
 
 import (
-	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 	"strconv"
@@ -19,36 +18,39 @@ type MyPostListResp struct {
 	Contact       string    `json:"contact"`
 	Description   string    `json:"description"`
 	ImageUrl      string    `json:"image_url"`
+	IsResolve     string    `json:"is_resolve"`
 	Status        string    `json:"status"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type MyPostsResp struct {
-	List  []MyPostListResp `json:"list"`
-	Total int              `json:"total"`
-	Page  int              `json:"page"`
+	List     []MyPostListResp `json:"list"`
+	Total    int              `json:"total"`
+	Page     int              `json:"page"`
+	PageSize int              `json:"page_size"`
 }
 
 // 查询自己的帖子
 func GetMyPosts(c *gin.Context) {
+	var pageSize = 15
 	postType := c.Query("post_type")
 	status := c.Query("status")
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if err != nil {
-		c.Error(errs.ErrInvalidQuery)
-		c.Abort()
-		return
-	}
+	isResolve := c.Query("is_resolve")
 
-	if page < 1 {
+	pageStr := c.DefaultQuery("page", "1")
+	if pageStr == "" {
+		pageStr = "1"
+	}
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
 		page = 1
 	}
 
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	postList, total, err := services.GetMyPosts(claims.UserID, page, status, postType)
+	postList, total, err := services.GetMyPosts(claims.UserID, page, status, postType, isResolve, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -66,6 +68,7 @@ func GetMyPosts(c *gin.Context) {
 			Contact:       post.Contact,
 			Description:   post.Description,
 			ImageUrl:      post.ImageUrl,
+			IsResolve:     post.IsResolve,
 			Status:        post.Status,
 			CreatedAt:     post.CreatedAt,
 			UpdatedAt:     post.UpdatedAt,
@@ -73,9 +76,10 @@ func GetMyPosts(c *gin.Context) {
 	}
 
 	resp := MyPostsResp{
-		List:  postListResp,
-		Total: total,
-		Page:  page,
+		List:     postListResp,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
 	}
 
 	utils.ResponseSuccess(c, resp)

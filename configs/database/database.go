@@ -33,10 +33,28 @@ func InitDB() {
 		panic("用户数据库创建失败：" + err.Error())
 	}
 
+	//创建帖子数据库
 	err = db.AutoMigrate(&models.Post{})
 	if err != nil {
 		panic("帖子数据库创建失败：" + err.Error())
 	}
 
+	//创建公告数据库
+	err = db.AutoMigrate(&models.Announcement{})
+	if err != nil {
+		panic("公告数据库创建失败：" + err.Error())
+	}
+
+	//创建评论数据库
+	err = db.AutoMigrate(&models.Comment{})
+	if err != nil {
+		panic("评论数据库创建失败：" + err.Error())
+	}
+
+	//创建认领申请数据库
+	err = db.AutoMigrate(&models.Claim{})
+	if err != nil {
+		panic("认领申请数据库创建失败：" + err.Error())
+	}
 	DB = db
 }

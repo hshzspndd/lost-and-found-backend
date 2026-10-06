@@ -42,7 +42,7 @@ func Register(username string, phoneNum string, password string, role string, in
 
 	userExists, err := CheckRegisterUserExists(username, phoneNum)
 	if err != nil {
-		return nil, errs.ErrUserCheckFail //用户信息校验失败
+		return nil, errs.ErrUserCheckFail //用户信息查询失败
 	}
 	if userExists {
 		return nil, errs.ErrUserExists //用户已存在
@@ -74,7 +74,7 @@ func CheckUserExistsByPhoneNum(phoneNum string) (*models.User, error) {
 	if err == gorm.ErrRecordNotFound {
 		return nil, errs.ErrUserNotFound
 	} else if err != nil {
-		return nil, errs.ErrDatabase
+		return nil, errs.ErrUserCheckFail
 	} else {
 		return &user, nil
 	}
@@ -88,6 +88,11 @@ func CheckPassword(hashedPassword string, inputPassword string) bool {
 
 // 登录
 func Login(phoneNum string, password string) (*models.User, error) {
+	// 检查该账号是否已被锁定
+	if utils.IsLoginLocked(phoneNum) {
+		return nil, errs.ErrLoginLocked
+	}
+
 	user, err := CheckUserExistsByPhoneNum(phoneNum)
 	if err != nil {
 		return nil, err
@@ -95,8 +100,13 @@ func Login(phoneNum string, password string) (*models.User, error) {
 
 	result := CheckPassword(user.Password, password)
 	if !result {
+		// 密码错误，记录一次失败
+		utils.RecordLoginFail(phoneNum)
 		return nil, errs.ErrWrongPassword
 	}
+
+	// 清零失败计数
+	utils.ResetLoginFail(phoneNum)
 
 	return user, nil
 
@@ -121,6 +131,9 @@ func CheckUserExists(userID int, username string, phoneNum string) (bool, error)
 func GetProfile(userID int) (*models.User, error) {
 	var user models.User
 	err := database.DB.Model(&models.User{}).Where("user_id = ?", userID).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, errs.ErrUserNotFound
+	}
 	if err != nil {
 		return nil, errs.ErrDatabase
 	}
@@ -145,6 +158,7 @@ func UpdateProfile(userID int, username string, phoneNum string) (*models.User, 
 	if username != "" {
 		updateUser["username"] = username
 	}
+
 	if phoneNum != "" {
 		updateUser["phone_num"] = phoneNum
 	}

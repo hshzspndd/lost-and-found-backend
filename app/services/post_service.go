@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/models"
 	"lost-and-found-backend/configs/database"
@@ -67,6 +68,7 @@ func CreatePost(userID int, postType, title, eventLocation, eventTime, contact, 
 		Contact:       contact,
 		Description:   description,
 		ImageUrl:      imageUrl,
+		IsResolve:     "未解决",
 		Status:        "待审核",
 	}
 	err := database.DB.Model(&models.Post{}).Create(&post).Error
@@ -81,9 +83,8 @@ func CreatePost(userID int, postType, title, eventLocation, eventTime, contact, 
 // ================================================== 查询帖子 ==================================================
 
 // 查询所有帖子
-func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
+func GetAllPosts(page int, postType string, isResolve string, pageSize int) ([]models.Post, int, error) {
 	var total int64
-	var pageSize int = 15
 
 	posts := make([]models.Post, 0)
 
@@ -94,6 +95,11 @@ func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
 		query = query.Where("post_type = ?", postType)
 	}
 
+	//筛选帖子是否解决
+	if isResolve == "已解决" || isResolve == "未解决" {
+		query = query.Where("is_resolve = ?", isResolve)
+	}
+
 	//获取帖子总数
 	err := query.Count(&total).Error
 	if err != nil {
@@ -102,7 +108,7 @@ func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
 	offset := (page - 1) * pageSize
 
 	//分页查询
-	err = query.Offset(offset).Limit(pageSize).Find(&posts).Error
+	err = query.Order("created_at DESC, post_id DESC").Offset(offset).Limit(pageSize).Find(&posts).Error
 	if err != nil {
 		return nil, 0, errs.ErrDatabase
 	}
@@ -111,9 +117,8 @@ func GetAllPosts(page int, postType string) ([]models.Post, int, error) {
 }
 
 // 查询自己的帖子
-func GetMyPosts(userID int, page int, status string, postType string) ([]models.Post, int, error) {
+func GetMyPosts(userID int, page int, status string, postType string, isResolve string, pageSize int) ([]models.Post, int, error) {
 	var total int64
-	var pageSize int = 15
 
 	posts := make([]models.Post, 0)
 
@@ -129,6 +134,11 @@ func GetMyPosts(userID int, page int, status string, postType string) ([]models.
 		query = query.Where("status = ?", status)
 	}
 
+	//筛选帖子是否解决
+	if isResolve != "" && (isResolve == "已解决" || isResolve == "未解决") {
+		query = query.Where("is_resolve = ?", isResolve)
+	}
+
 	//获取帖子总数
 	err := query.Count(&total).Error
 	if err != nil {
@@ -137,7 +147,7 @@ func GetMyPosts(userID int, page int, status string, postType string) ([]models.
 	offset := (page - 1) * pageSize
 
 	//分页查询
-	err = query.Offset(offset).Limit(pageSize).Find(&posts).Error
+	err = query.Order("created_at DESC, post_id DESC").Offset(offset).Limit(pageSize).Find(&posts).Error
 	if err != nil {
 		return nil, 0, errs.ErrDatabase
 	}
@@ -146,7 +156,7 @@ func GetMyPosts(userID int, page int, status string, postType string) ([]models.
 }
 
 // 查询帖子详情
-func GetPostDetails(postID int) (*models.Post, error) {
+func GetPostDetails(postID int, userID int, role string) (*models.Post, error) {
 	var post models.Post
 	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
 	if err != nil {
@@ -156,30 +166,42 @@ func GetPostDetails(postID int) (*models.Post, error) {
 		return nil, errs.ErrDatabase
 	}
 
+	if post.Status != "已通过" {
+		// 如果不是“已通过”，只有作者本人和管理员才能看
+		isAdmin := role == "系统管理员" || role == "失物招领管理员"
+		isAuthor := post.UserID == userID
+		if !isAdmin && !isAuthor {
+			return nil, errs.ErrPostNotFound
+		}
+	}
 	return &post, nil
 }
 
 // ================================================== 删除帖子 ==================================================
 
 // 删除自己的帖子
-func DeleteMyPost(PostID, UserID int) error {
-	res := database.DB.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", PostID, UserID).Delete(&models.Post{})
-
-	if res.Error != nil {
-		return errs.ErrDatabase
-	}
-
-	if res.RowsAffected == 0 {
-		postExists, err := CheckPostExistByPostID(PostID)
-		if err != nil {
+func DeleteMyPost(postID, userID int) error {
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		res := tx.Model(&models.Post{}).Where("post_id = ? AND user_id = ?", postID, userID).Delete(&models.Post{})
+		if res.Error != nil {
 			return errs.ErrDatabase
 		}
-		if !postExists {
-			return errs.ErrPostNotFound
+		if res.RowsAffected == 0 {
+			postExists, err := CheckPostExistByPostID(postID)
+			if err != nil {
+				return errs.ErrDatabase
+			}
+			if !postExists {
+				return errs.ErrPostNotFound
+			}
+			return errs.ErrIsNotYourPost
 		}
-		return errs.ErrIsNotYourPost
-	}
-	return nil
+		// 连带删除该帖子的评论和认领申请，避免孤儿数据
+		if err := tx.Model(&models.Comment{}).Where("post_id = ?", postID).Delete(&models.Comment{}).Error; err != nil {
+			return errs.ErrDatabase
+		}
+		return tx.Model(&models.Claim{}).Where("post_id = ?", postID).Delete(&models.Claim{}).Error
+	})
 }
 
 func CheckPostExistByPostID(postID int) (bool, error) {
@@ -196,9 +218,8 @@ func CheckPostExistByPostID(postID int) (bool, error) {
 
 // ================================================== 管理员查询所有帖子 ==================================================
 
-func AdminGetAllPosts(page int, postType string, status string) ([]models.Post, int, error) {
+func AdminGetAllPosts(page int, postType string, status string, isResolve string, pageSize int) ([]models.Post, int, error) {
 	var total int64
-	var pageSize int = 15
 
 	posts := make([]models.Post, 0)
 	query := database.DB.Model(&models.Post{})
@@ -206,10 +227,17 @@ func AdminGetAllPosts(page int, postType string, status string) ([]models.Post, 
 	if postType != "" && (postType == "寻物" || postType == "招领") {
 		query = query.Where("post_type = ?", postType)
 	}
+
 	//筛选提子状态
 	if status != "" && (status == "待审核" || status == "已驳回" || status == "已通过") {
 		query = query.Where("status = ?", status)
 	}
+
+	//筛选帖子是否解决
+	if isResolve != "" && (isResolve == "已解决" || isResolve == "未解决") {
+		query = query.Where("is_resolve = ?", isResolve)
+	}
+
 	//获取帖子总数
 	err := query.Count(&total).Error
 	if err != nil {
@@ -218,7 +246,7 @@ func AdminGetAllPosts(page int, postType string, status string) ([]models.Post, 
 	offset := (page - 1) * pageSize
 
 	//分页查询
-	err = query.Offset(offset).Limit(pageSize).Find(&posts).Error
+	err = query.Order("created_at DESC, post_id DESC").Offset(offset).Limit(pageSize).Find(&posts).Error
 	if err != nil {
 		return nil, 0, errs.ErrDatabase
 	}
@@ -226,7 +254,7 @@ func AdminGetAllPosts(page int, postType string, status string) ([]models.Post, 
 	return posts, int(total), nil
 }
 
-// ================================================== 审核帖子 ==================================================
+// ================================================== 管理员审核帖子 ==================================================
 
 // 审核帖子
 func AuditPost(postID int, status string) error {
@@ -246,6 +274,70 @@ func AuditPost(postID int, status string) error {
 
 	// 执行更新
 	err = database.DB.Model(&post).Update("status", status).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+
+	return nil
+}
+
+// ================================================== 管理员删除帖子 ==================================================
+
+// 管理员删除帖子
+func AdminDeletePost(postID int) error {
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		res := tx.Delete(&models.Post{}, postID)
+		if res.Error != nil {
+			return errs.ErrDatabase
+		}
+		if res.RowsAffected == 0 {
+			return errs.ErrPostNotFound
+		}
+		// 连带删除该帖子的评论和认领申请，避免孤儿数据
+		if err := tx.Where("post_id = ?", postID).Delete(&models.Comment{}).Error; err != nil {
+			return errs.ErrDatabase
+		}
+		return tx.Model(&models.Claim{}).Where("post_id = ?", postID).Delete(&models.Claim{}).Error
+	})
+}
+
+// ================================================== 编辑并重新提交帖子 ==================================================
+
+// 编辑并重新提交帖子
+func UpdateMyPost(postID int, userID int, title string, eventLocaton string, eventTime string, contact string, description string, imageUrl string) error {
+	var post models.Post
+	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.ErrPostNotFound
+		}
+		return errs.ErrDatabase
+	}
+
+	if post.UserID != userID {
+		return errs.ErrIsNotYourPost
+	}
+
+	// 状态校验：只有“已驳回”或“待审核”的帖子才能编辑
+	if post.Status != "已驳回" && post.Status != "待审核" {
+		return errs.ErrPostNotEditable
+	}
+
+	// 更新内容，并重置为待审核
+	updateData := map[string]interface{}{
+		"title":          title,
+		"event_location": eventLocaton,
+		"event_time":     eventTime,
+		"contact":        contact,
+		"description":    description,
+		"status":         "待审核",
+	}
+	// 没传图片则保留原图，避免编辑时把已有图片清空
+	if imageUrl != "" {
+		updateData["image_url"] = imageUrl
+	}
+
+	err = database.DB.Model(&post).Updates(updateData).Error
 	if err != nil {
 		return errs.ErrDatabase
 	}
