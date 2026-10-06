@@ -301,45 +301,6 @@ func AdminDeletePost(postID int) error {
 	})
 }
 
-// ================================================== 管理员改变帖子的解决状态 ==================================================
-
-// 管理员改变帖子的解决状态
-func AdminResolvePost(postID int, resolveStatus string) error {
-	var post models.Post
-	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return errs.ErrPostNotFound
-		}
-		return errs.ErrDatabase
-	}
-
-	// 只有已通过审核的帖子才能标记解决状态
-	if post.Status != "已通过" {
-		return errs.ErrStatusInvalid
-	}
-
-	if post.IsResolve == resolveStatus {
-		return nil
-	}
-
-	err = database.DB.Model(&post).Update("is_resolve", resolveStatus).Error
-	if err != nil {
-		return errs.ErrDatabase
-	}
-
-	if resolveStatus == "已解决" {
-		// 帖子解决后，把该帖子的待处理认领申请全部拒绝，避免申请悬挂
-		if err := database.DB.Model(&models.Claim{}).
-			Where("post_id = ? AND status = ?", postID, "待处理").
-			Update("status", "已拒绝").Error; err != nil {
-			return errs.ErrDatabase
-		}
-	}
-
-	return nil
-}
-
 // ================================================== 编辑并重新提交帖子 ==================================================
 
 // 编辑并重新提交帖子
