@@ -10,7 +10,7 @@ import (
 )
 
 type CreateClaimData struct {
-	Reason string `json:"reason" binding:"required,min=5,max=255"`
+	Reason string `json:"reason" binding:"required,max=255"`
 }
 
 type ClaimResp struct {

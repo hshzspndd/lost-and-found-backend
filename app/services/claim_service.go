@@ -57,3 +57,32 @@ func CreateClaim(postID int, claimerID int, reason string) (*models.Claim, error
 
 	return &claim, nil
 }
+
+// ================================================== 撤回认领申请 ==================================================
+
+// 撤回认领申请
+func CancelClaim(claimID int, userID int) error {
+	var claim models.Claim
+	if err := database.DB.First(&claim, claimID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errs.ErrClaimNotFound
+		}
+		return errs.ErrDatabase
+	}
+
+	//只能撤回自己的申请
+	if claim.ClaimerID != userID {
+		return errs.ErrNoPermission
+	}
+
+	//只有“待处理”的申请才能撤回
+	if claim.Status != "待处理" {
+		return errs.ErrStatusInvalid // 已经处理过的申请不能撤回
+	}
+
+	if err := database.DB.Delete(&claim).Error; err != nil {
+		return errs.ErrDatabase
+	}
+
+	return nil
+}
