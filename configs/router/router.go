@@ -42,7 +42,6 @@ func Router(c *gin.Engine) {
 		auth.GET("/my/posts", post_controller.GetMyPosts)               //查询自己的帖子
 		auth.DELETE("/my/posts/:post_id", post_controller.DeleteMyPost) //删除我的帖子
 		auth.GET("/posts/:post_id", post_controller.GetPostDetails)     //获取帖子详情
-		auth.PATCH("/posts/:post_id/resolve", post_controller.Resolve)  //帖子的解决与撤销解决
 		auth.PUT("/my/posts/:post_id", post_controller.UpdateMyPost)    //编辑并重新提交帖子
 
 		// ================================== 关于认领 ==================================
@@ -66,10 +65,9 @@ func Router(c *gin.Engine) {
 	admin.Use(middlewares.ParseJwt())
 	admin.Use(middlewares.RequireRole("失物招领管理员", "系统管理员"))
 	{
-		admin.GET("", admin_controller.GetAdminPosts)                       // 获取所有帖子
-		admin.PATCH("/:post_id/audit", admin_controller.AuditPost)          //审核帖子
-		admin.DELETE("/:post_id", admin_controller.AdminDeletePost)         //删除帖子
-		admin.PATCH("/:post_id/resolve", admin_controller.AdminResolvePost) //管理员改变帖子的解决状态
+		admin.GET("", admin_controller.GetAdminPosts)               // 获取所有帖子
+		admin.PATCH("/:post_id/audit", admin_controller.AuditPost)  //审核帖子
+		admin.DELETE("/:post_id", admin_controller.AdminDeletePost) //删除帖子
 	}
 
 	// ================================== 关于系统管理员 ==================================

@@ -37,7 +37,8 @@ func CreateClaim(postID int, claimerID int, reason string) (*models.Claim, error
 		return nil, errs.ErrCannotClaimOwnPost
 	}
 
-	err = database.DB.Model(&models.Claim{}).Where("post_id = ? AND claimer_id = ?", postID, claimerID).Count(&count).Error
+	// 只有待处理的申请才算重复，被拒绝后可以重新提交
+	err = database.DB.Model(&models.Claim{}).Where("post_id = ? AND claimer_id = ? AND status = ?", postID, claimerID, "待处理").Count(&count).Error
 	if err != nil {
 		return nil, errs.ErrDatabase
 	}
@@ -140,7 +141,7 @@ type PostClaimWithUser struct {
 }
 
 // 查询自己帖子收到的认领申请
-func GetPostClaims(postID int, authorID int, status string, page int, pageSize int) ([]PostClaimWithUser, int, error) {
+func GetPostClaims(postID int, authorID int, page int, pageSize int) ([]PostClaimWithUser, int, error) {
 	var total int64
 	claims := make([]PostClaimWithUser, 0)
 
@@ -156,10 +157,6 @@ func GetPostClaims(postID int, authorID int, status string, page int, pageSize i
 	}
 
 	query := database.DB.Model(&models.Claim{}).Where("post_id = ?", postID)
-	if status != "" && (status == "待处理" || status == "已同意" || status == "已拒绝") {
-		query = query.Where("status = ?", status)
-	}
-
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, errs.ErrDatabase
 	}
@@ -216,9 +213,15 @@ func AuditClaim(claimID int, authorID int, approve bool) error {
 		}
 
 		if approve {
-			//把帖子标记为“已解决”
-			if err := tx.Model(&post).Update("is_resolve", "已解决").Error; err != nil {
+			//把帖子标记为“已解决”（条件更新：帖子还没被解决才允许，防止并发同时同意多个申请）
+			result := tx.Model(&models.Post{}).
+				Where("post_id = ? AND is_resolve != ?", post.PostID, "已解决").
+				Update("is_resolve", "已解决")
+			if result.Error != nil {
 				return errs.ErrDatabase
+			}
+			if result.RowsAffected == 0 {
+				return errs.ErrPostAlreadyResolved
 			}
 			//把该帖子的其他待处理申请全部拒绝
 			if err := tx.Model(&models.Claim{}).

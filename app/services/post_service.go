@@ -196,7 +196,11 @@ func DeleteMyPost(postID, userID int) error {
 			}
 			return errs.ErrIsNotYourPost
 		}
-		return tx.Model(&models.Comment{}).Where("post_id = ?", postID).Delete(&models.Comment{}).Error
+		// 连带删除该帖子的评论和认领申请，避免孤儿数据
+		if err := tx.Model(&models.Comment{}).Where("post_id = ?", postID).Delete(&models.Comment{}).Error; err != nil {
+			return errs.ErrDatabase
+		}
+		return tx.Model(&models.Claim{}).Where("post_id = ?", postID).Delete(&models.Claim{}).Error
 	})
 }
 
@@ -210,36 +214,6 @@ func CheckPostExistByPostID(postID int) (bool, error) {
 		return false, err
 	}
 	return true, nil
-}
-
-// ================================================== 帖子的解决与撤销解决 ==================================================
-
-// 帖子的解决与撤销解决
-func Resolve(postID int, userID int, resolveStatus string) error {
-	var post models.Post
-	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
-	if err == gorm.ErrRecordNotFound {
-		return errs.ErrPostNotFound
-	}
-	if err != nil {
-		return errs.ErrDatabase
-	}
-
-	if post.UserID != userID {
-		return errs.ErrIsNotYourPost //防止更改他人的
-	}
-	if post.Status != "已通过" {
-		return errs.ErrStatusInvalid //防止更改未通过审核的
-	}
-	if post.IsResolve == resolveStatus {
-		return nil
-	}
-
-	err = database.DB.Model(&post).Update("is_resolve", resolveStatus).Error
-	if err != nil {
-		return errs.ErrDatabase
-	}
-	return nil
 }
 
 // ================================================== 管理员查询所有帖子 ==================================================
@@ -319,38 +293,12 @@ func AdminDeletePost(postID int) error {
 		if res.RowsAffected == 0 {
 			return errs.ErrPostNotFound
 		}
-		return tx.Where("post_id = ?", postID).Delete(&models.Comment{}).Error
-	})
-}
-
-// ================================================== 管理员改变帖子的解决状态 ==================================================
-
-// 管理员改变帖子的解决状态
-func AdminResolvePost(postID int, resolveStatus string) error {
-	var post models.Post
-	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return errs.ErrPostNotFound
+		// 连带删除该帖子的评论和认领申请，避免孤儿数据
+		if err := tx.Where("post_id = ?", postID).Delete(&models.Comment{}).Error; err != nil {
+			return errs.ErrDatabase
 		}
-		return errs.ErrDatabase
-	}
-
-	// 只有已通过审核的帖子才能标记解决状态
-	if post.Status != "已通过" {
-		return errs.ErrStatusInvalid
-	}
-
-	if post.IsResolve == resolveStatus {
-		return nil
-	}
-
-	err = database.DB.Model(&post).Update("is_resolve", resolveStatus).Error
-	if err != nil {
-		return errs.ErrDatabase
-	}
-
-	return nil
+		return tx.Model(&models.Claim{}).Where("post_id = ?", postID).Delete(&models.Claim{}).Error
+	})
 }
 
 // ================================================== 编辑并重新提交帖子 ==================================================
