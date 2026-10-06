@@ -37,7 +37,8 @@ func CreateClaim(postID int, claimerID int, reason string) (*models.Claim, error
 		return nil, errs.ErrCannotClaimOwnPost
 	}
 
-	err = database.DB.Model(&models.Claim{}).Where("post_id = ? AND claimer_id = ?", postID, claimerID).Count(&count).Error
+	// 只有待处理的申请才算重复，被拒绝后可以重新提交
+	err = database.DB.Model(&models.Claim{}).Where("post_id = ? AND claimer_id = ? AND status = ?", postID, claimerID, "待处理").Count(&count).Error
 	if err != nil {
 		return nil, errs.ErrDatabase
 	}
