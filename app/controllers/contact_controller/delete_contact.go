@@ -29,5 +29,5 @@ func DeleteContact(c *gin.Context) {
 		return
 	}
 
-	utils.ResponseSuccess(c, "联系人删除成功")
+	utils.ResponseSuccess(c, nil)
 }

@@ -29,5 +29,5 @@ func DeleteMyComment(c *gin.Context) {
 		return
 	}
 
-	utils.ResponseSuccess(c, "评论删除成功")
+	utils.ResponseSuccess(c, nil)
 }
