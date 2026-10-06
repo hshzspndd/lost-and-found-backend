@@ -239,6 +239,14 @@ func Resolve(postID int, userID int, resolveStatus string) error {
 	if err != nil {
 		return errs.ErrDatabase
 	}
+	if resolveStatus == "已解决" {
+		// 帖子解决后，把该帖子的待处理认领申请全部拒绝，避免申请悬挂
+		if err := database.DB.Model(&models.Claim{}).
+			Where("post_id = ? AND status = ?", postID, "待处理").
+			Update("status", "已拒绝").Error; err != nil {
+			return errs.ErrDatabase
+		}
+	}
 	return nil
 }
 
@@ -348,6 +356,15 @@ func AdminResolvePost(postID int, resolveStatus string) error {
 	err = database.DB.Model(&post).Update("is_resolve", resolveStatus).Error
 	if err != nil {
 		return errs.ErrDatabase
+	}
+
+	if resolveStatus == "已解决" {
+		// 帖子解决后，把该帖子的待处理认领申请全部拒绝，避免申请悬挂
+		if err := database.DB.Model(&models.Claim{}).
+			Where("post_id = ? AND status = ?", postID, "待处理").
+			Update("status", "已拒绝").Error; err != nil {
+			return errs.ErrDatabase
+		}
 	}
 
 	return nil

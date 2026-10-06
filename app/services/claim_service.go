@@ -212,9 +212,15 @@ func AuditClaim(claimID int, authorID int, approve bool) error {
 		}
 
 		if approve {
-			//把帖子标记为“已解决”
-			if err := tx.Model(&post).Update("is_resolve", "已解决").Error; err != nil {
+			//把帖子标记为“已解决”（条件更新：帖子还没被解决才允许，防止并发同时同意多个申请）
+			result := tx.Model(&models.Post{}).
+				Where("post_id = ? AND is_resolve != ?", post.PostID, "已解决").
+				Update("is_resolve", "已解决")
+			if result.Error != nil {
 				return errs.ErrDatabase
+			}
+			if result.RowsAffected == 0 {
+				return errs.ErrPostAlreadyResolved
 			}
 			//把该帖子的其他待处理申请全部拒绝
 			if err := tx.Model(&models.Claim{}).
