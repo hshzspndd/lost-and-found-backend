@@ -308,6 +308,46 @@ func AdminDeletePost(postID int) error {
 	})
 }
 
+// ================================================== 管理员改变帖子的解决状态 ==================================================
+
+// 管理员改变帖子的解决状态
+func AdminResolvePost(postID int, resolveStatus string) error {
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		var post models.Post
+		err := tx.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return errs.ErrPostNotFound
+			}
+			return errs.ErrDatabase
+		}
+
+		// 只有已通过审核的帖子才能标记解决状态
+		if post.Status != "已通过" {
+			return errs.ErrStatusInvalid
+		}
+
+		if post.IsResolve == resolveStatus {
+			return nil
+		}
+
+		if err := tx.Model(&post).Update("is_resolve", resolveStatus).Error; err != nil {
+			return errs.ErrDatabase
+		}
+
+		// 标记为已解决时，自动拒绝该帖子的所有待处理认领，避免申领变成孤儿
+		if resolveStatus == "已解决" {
+			if err := tx.Model(&models.Claim{}).
+				Where("post_id = ? AND status = ?", postID, "待处理").
+				Update("status", "已拒绝").Error; err != nil {
+				return errs.ErrDatabase
+			}
+		}
+
+		return nil
+	})
+}
+
 // ================================================== 编辑并重新提交帖子 ==================================================
 
 // 编辑并重新提交帖子
