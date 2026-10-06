@@ -4,6 +4,7 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -56,6 +57,8 @@ func UpdateProfile(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	// 去除首尾空格，空用户名视为不修改
+	updateProfileData.Username = strings.TrimSpace(updateProfileData.Username)
 	// 检验用户名长度
 	if updateProfileData.Username != "" {
 		if len([]rune(updateProfileData.Username)) > 50 {

@@ -4,6 +4,7 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,6 +29,20 @@ func Register(c *gin.Context) {
 	var registerData RegisterData
 	err := c.ShouldBindJSON(&registerData)
 	if err != nil {
+		c.Error(errs.ErrBindJSON)
+		c.Abort()
+		return
+	}
+
+	// 去除首尾空格后重新校验，避免全空格用户名/密码入库
+	registerData.Username = strings.TrimSpace(registerData.Username)
+	registerData.Password = strings.TrimSpace(registerData.Password)
+	if registerData.Username == "" || registerData.Password == "" {
+		c.Error(errs.ErrBindJSON)
+		c.Abort()
+		return
+	}
+	if len([]rune(registerData.Password)) < 6 || len([]rune(registerData.Password)) > 15 {
 		c.Error(errs.ErrBindJSON)
 		c.Abort()
 		return
