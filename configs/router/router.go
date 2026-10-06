@@ -58,8 +58,8 @@ func Router(c *gin.Engine) {
 		auth.DELETE("/my/contacts/:contact_id", contact_controller.DeleteContact) //删除联系人
 
 		// ================================== 关于评论 ==================================
-		auth.POST("/posts/:post_id/comments", comment_controller.CreateComment)     //发布评论
-		auth.DELETE("/posts/:post_id/comments", comment_controller.DeleteMyComment) //删除我的评论
+		auth.POST("/posts/:post_id/comments", comment_controller.CreateComment)                 //发布评论
+		auth.DELETE("/posts/:post_id/comments/:comment_id", comment_controller.DeleteMyComment) //删除我的评论
 	}
 
 	// ================================== 关于失物招领管理员 ==================================
