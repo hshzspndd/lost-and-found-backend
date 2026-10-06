@@ -196,7 +196,11 @@ func DeleteMyPost(postID, userID int) error {
 			}
 			return errs.ErrIsNotYourPost
 		}
-		return tx.Model(&models.Comment{}).Where("post_id = ?", postID).Delete(&models.Comment{}).Error
+		// 连带删除该帖子的评论和认领申请，避免孤儿数据
+		if err := tx.Model(&models.Comment{}).Where("post_id = ?", postID).Delete(&models.Comment{}).Error; err != nil {
+			return errs.ErrDatabase
+		}
+		return tx.Model(&models.Claim{}).Where("post_id = ?", postID).Delete(&models.Claim{}).Error
 	})
 }
 
@@ -289,7 +293,11 @@ func AdminDeletePost(postID int) error {
 		if res.RowsAffected == 0 {
 			return errs.ErrPostNotFound
 		}
-		return tx.Where("post_id = ?", postID).Delete(&models.Comment{}).Error
+		// 连带删除该帖子的评论和认领申请，避免孤儿数据
+		if err := tx.Where("post_id = ?", postID).Delete(&models.Comment{}).Error; err != nil {
+			return errs.ErrDatabase
+		}
+		return tx.Model(&models.Claim{}).Where("post_id = ?", postID).Delete(&models.Claim{}).Error
 	})
 }
 
