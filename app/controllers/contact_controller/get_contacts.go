@@ -10,7 +10,7 @@ import (
 
 type ContactListResp struct {
 	OwnerID   int    `json:"owner_id"`
-	ContactID int    `json:"id"`
+	ContactID int    `json:"contact_id"`
 	StudentID string `json:"student_id"`
 	Name      string `json:"name"`
 	Sex       string `json:"sex"`

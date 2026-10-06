@@ -4,7 +4,7 @@ import "time"
 
 type Post struct {
 	PostID        int       `json:"post_id" gorm:"primarykey;autoIncrement"`
-	UserID        int       `json:"user_id"`
+	UserID        int       `json:"user_id" gorm:"index"`
 	PostType      string    `json:"post_type"`
 	Title         string    `json:"title"`
 	EventLocation string    `json:"event_location"`
