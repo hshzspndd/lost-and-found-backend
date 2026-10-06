@@ -21,9 +21,10 @@ func Router(c *gin.Engine) {
 	api := c.Group(pre)
 	api.Use(middlewares.GlobalResponseError)
 	{
-		api.POST("/register", user_controller.Register) //注册
-		api.POST("/login", user_controller.Login)       //登录
-		api.GET("/posts", post_controller.GetAllPosts)  //获取公开帖子列表
+		api.POST("/register", user_controller.Register)                     //注册
+		api.POST("/login", user_controller.Login)                           //登录
+		api.GET("/posts", post_controller.GetAllPosts)                      //获取公开帖子列表
+		api.GET("/posts/:post_id/comments", comment_controller.GetComments) //获取评论
 		api.GET("/announcements", announcement_controller.GetAnnouncements)
 	}
 
@@ -52,17 +53,14 @@ func Router(c *gin.Engine) {
 		auth.PUT("/claims/:claim_id/audit", claim_controller.AuditClaim)   //处理认领申请
 
 		// ================================== 关于联系人 ==================================
-		auth.POST("/contact", contact_controller.AddContact)             //添加联系人
-		auth.GET("/my-contacts", contact_controller.GetContacts)         //查询联系人列表
-		auth.DELETE("/delete-contact", contact_controller.DeleteContact) //删除联系人
+		auth.POST("/contact", contact_controller.AddContact)                      //添加联系人
+		auth.GET("/my/contacts", contact_controller.GetContacts)                  //查询联系人列表
+		auth.DELETE("/my/contacts/:contact_id", contact_controller.DeleteContact) //删除联系人
 
 		// ================================== 关于评论 ==================================
-		auth.POST("/posts/:post_id/comments", comment_controller.CreateComment)    //发布评论
-		auth.GET("/posts/:post_id/comments", comment_controller.GetComments)       //获取评论
-		auth.DELETE("/posts/:post_id/comment", comment_controller.DeleteMyComment) //删除我的评论
+		auth.POST("/posts/:post_id/comments", comment_controller.CreateComment)     //发布评论
+		auth.DELETE("/posts/:post_id/comments", comment_controller.DeleteMyComment) //删除我的评论
 	}
-	auth.GET("/all-posts", post_controller.GetAllPosts)       //获取公开帖子列表
-	auth.GET("/all-comments", comment_controller.GetComments) //获取评论
 
 	// ================================== 关于失物招领管理员 ==================================
 	admin := api.Group("/admin/posts")
@@ -80,7 +78,7 @@ func Router(c *gin.Engine) {
 	sysadmin.Use(middlewares.RequireRole("系统管理员"))
 	{
 		sysadmin.GET("/users", sysadmin_controller.GetUsers)                                           //查询所有用户
-		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole)                         // 修改用户角色
+		sysadmin.PATCH("/users/:user_id/role", sysadmin_controller.UpdateRole)                         //修改用户角色
 		sysadmin.POST("/announcements", announcement_controller.CreateAnnouncement)                    //发布公告
 		sysadmin.DELETE("/announcements/:announcement_id", announcement_controller.DeleteAnnouncement) //删除公告
 		sysadmin.GET("/stats", sysadmin_controller.GetStats)                                           //获取系统数据
