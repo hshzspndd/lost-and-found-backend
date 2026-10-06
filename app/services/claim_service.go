@@ -8,55 +8,61 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // ================================================== 提交认领申请 ==================================================
 
 // 提交认领申请
 func CreateClaim(postID int, claimerID int, reason string) (*models.Claim, error) {
-	//查帖子是否存在
-	var post models.Post
-	var count int64
-	err := database.DB.First(&post, postID).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errs.ErrPostNotFound
+	var claim models.Claim
+
+	// 事务内锁住帖子行，串行化同一帖子的认领提交，避免并发重复申请
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		// 查帖子是否存在并加行锁
+		var post models.Post
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&post, postID).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errs.ErrPostNotFound
+			}
+			return errs.ErrDatabase
 		}
-		return nil, errs.ErrDatabase
-	}
 
-	//帖子必须“已通过”且“未解决”
-	if post.Status != "已通过" {
-		return nil, errs.ErrStatusInvalid
-	}
-	if post.IsResolve == "已解决" {
-		return nil, errs.ErrPostAlreadyResolved
-	}
+		// 帖子必须“已通过”且“未解决”
+		if post.Status != "已通过" {
+			return errs.ErrStatusInvalid
+		}
+		if post.IsResolve == "已解决" {
+			return errs.ErrPostAlreadyResolved
+		}
 
-	if post.UserID == claimerID {
-		return nil, errs.ErrCannotClaimOwnPost
-	}
+		if post.UserID == claimerID {
+			return errs.ErrCannotClaimOwnPost
+		}
 
-	// 只有待处理的申请才算重复，被拒绝后可以重新提交
-	err = database.DB.Model(&models.Claim{}).Where("post_id = ? AND claimer_id = ? AND status = ?", postID, claimerID, "待处理").Count(&count).Error
+		// 只有待处理的申请才算重复，被拒绝后可以重新提交
+		var count int64
+		if err := tx.Model(&models.Claim{}).Where("post_id = ? AND claimer_id = ? AND status = ?", postID, claimerID, "待处理").Count(&count).Error; err != nil {
+			return errs.ErrDatabase
+		}
+		if count > 0 {
+			return errs.ErrClaimAlreadyExists
+		}
+
+		claim = models.Claim{
+			PostID:    postID,
+			ClaimerID: claimerID,
+			Reason:    reason,
+			Status:    "待处理",
+		}
+		if err := tx.Create(&claim).Error; err != nil {
+			return errs.ErrDatabase
+		}
+		return nil
+	})
 	if err != nil {
-		return nil, errs.ErrDatabase
+		return nil, err
 	}
-
-	if count > 0 {
-		return nil, errs.ErrClaimAlreadyExists
-	}
-
-	claim := models.Claim{
-		PostID:    postID,
-		ClaimerID: claimerID,
-		Reason:    reason,
-		Status:    "待处理",
-	}
-	if err := database.DB.Create(&claim).Error; err != nil {
-		return nil, errs.ErrDatabase
-	}
-
 	return &claim, nil
 }
 
