@@ -22,7 +22,7 @@ func DeleteContact(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	err = services.DeleteMyPost(contactID, claims.UserID)
+	err = services.DeleteMyContact(contactID, claims.UserID)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
