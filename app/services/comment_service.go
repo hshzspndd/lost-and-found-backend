@@ -66,34 +66,27 @@ func GetComments(page, postID int, pageSize int) ([]models.Comment, int, error) 
 // ================================================== 删除评论 ==================================================
 
 // 删除自己的评论
-func DeleteMyComment(CommentID, UserID int) error {
-	res := database.DB.Model(&models.Comment{}).Where("comment_id = ? AND user_id = ?", CommentID, UserID).Delete(&models.Comment{})
+func DeleteMyComment(postID, CommentID, UserID int) error {
+	res := database.DB.Model(&models.Comment{}).Where("comment_id = ? AND post_id = ? AND user_id = ?", CommentID, postID, UserID).Delete(&models.Comment{})
 
 	if res.Error != nil {
 		return errs.ErrDatabase
 	}
 
 	if res.RowsAffected == 0 {
-		commentExists, err := CheckCommentExistByCommentID(CommentID)
+		// 区分三种失败原因：评论不存在 / 路径post_id与评论不匹配 / 不是自己的评论
+		var comment models.Comment
+		err := database.DB.First(&comment, CommentID).Error
 		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return errs.ErrCommentNotFound
+			}
 			return errs.ErrDatabase
 		}
-		if !commentExists {
-			return errs.ErrCommentNotFound
+		if comment.PostID != postID {
+			return errs.ErrInvalidQuery
 		}
 		return errs.ErrIsNotYourComment
 	}
 	return nil
-}
-
-func CheckCommentExistByCommentID(commentID int) (bool, error) {
-	var comment models.Comment
-	err := database.DB.Model(&models.Comment{}).Where("comment_id = ?", commentID).First(&comment).Error
-	if err == gorm.ErrRecordNotFound {
-		return false, nil
-	}
-	if err != nil {
-		return false, err
-	}
-	return true, nil
 }

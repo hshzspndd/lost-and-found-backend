@@ -11,8 +11,14 @@ import (
 
 // 删除我的评论
 func DeleteMyComment(c *gin.Context) {
-	commentIDUrl := c.Param("comment_id")
-	commentID, err := strconv.Atoi(commentIDUrl)
+	postID, err := strconv.Atoi(c.Param("post_id"))
+	if err != nil {
+		c.Error(errs.ErrInvalidQuery)
+		c.Abort()
+		return
+	}
+
+	commentID, err := strconv.Atoi(c.Param("comment_id"))
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
@@ -22,7 +28,7 @@ func DeleteMyComment(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	err = services.DeleteMyComment(commentID, claims.UserID)
+	err = services.DeleteMyComment(postID, commentID, claims.UserID)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
