@@ -85,7 +85,7 @@ func Router(c *gin.Engine) {
 		sysadmin.POST("/announcements", announcement_controller.CreateAnnouncement)                    //发布公告
 		sysadmin.DELETE("/announcements/:announcement_id", announcement_controller.DeleteAnnouncement) //删除公告
 		sysadmin.GET("/stats", sysadmin_controller.GetStats)                                           //获取系统数据
-		sysadmin.PATCH("/users/:user_id/mute/:mute_seconds", sysadmin_controller.MuteUser)             //禁言用户
+		sysadmin.PATCH("/users/:user_id/mute/:mute_second", sysadmin_controller.MuteUser)              //禁言用户
 		sysadmin.PATCH("/users/:user_id/unmute", sysadmin_controller.UnMuteUser)                       //解禁用户
 	}
 }
