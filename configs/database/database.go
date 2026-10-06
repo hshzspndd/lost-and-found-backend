@@ -50,5 +50,11 @@ func InitDB() {
 	if err != nil {
 		panic("评论数据库创建失败：" + err.Error())
 	}
+
+	//创建认领申请数据库
+	err = db.AutoMigrate(&models.Claim{})
+	if err != nil {
+		panic("认领申请数据库创建失败：" + err.Error())
+	}
 	DB = db
 }
