@@ -46,8 +46,10 @@ func Router(c *gin.Engine) {
 		auth.PUT("/my/posts/:post_id", post_controller.UpdateMyPost)    //编辑并重新提交帖子
 
 		// ================================== 关于认领 ==================================
-		auth.POST("/posts/:post_id/claims", claim_controller.CreateClaim) //提交认领申请
-		auth.DELETE("/claims/:claim_id", claim_controller.CancelClaim)    //撤回认领申请
+		auth.POST("/posts/:post_id/claims", claim_controller.CreateClaim)  //提交认领申请
+		auth.DELETE("/claims/:claim_id", claim_controller.CancelClaim)     //撤回认领申请
+		auth.GET("/my/claims", claim_controller.GetMyClaims)               // 我提交的申请
+		auth.GET("/posts/:post_id/claims", claim_controller.GetPostClaims) // 我帖子收到的申请
 
 		// ================================== 关于联系人 ==================================
 		auth.POST("/contacts", contact_controller.AddContact)    //添加联系人
