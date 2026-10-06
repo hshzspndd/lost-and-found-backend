@@ -50,6 +50,7 @@ func Router(c *gin.Engine) {
 		auth.DELETE("/claims/:claim_id", claim_controller.CancelClaim)     //撤回认领申请
 		auth.GET("/my/claims", claim_controller.GetMyClaims)               // 我提交的申请
 		auth.GET("/posts/:post_id/claims", claim_controller.GetPostClaims) // 我帖子收到的申请
+		auth.PUT("/claims/:claim_id/audit", claim_controller.AuditClaim)   //处理认领申请
 
 		// ================================== 关于联系人 ==================================
 		auth.POST("/contacts", contact_controller.AddContact)    //添加联系人

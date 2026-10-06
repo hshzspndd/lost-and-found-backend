@@ -179,3 +179,55 @@ func GetPostClaims(postID int, authorID int, status string, page int, pageSize i
 
 	return claims, int(total), nil
 }
+
+// ================================================== 处理认领申请 ==================================================
+
+// 作者审批认领申请
+func AuditClaim(claimID int, authorID int, approve bool) error {
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		var claim models.Claim
+		if err := tx.First(&claim, claimID).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errs.ErrClaimNotFound
+			}
+			return errs.ErrDatabase
+		}
+
+		var post models.Post
+		if err := tx.First(&post, claim.PostID).Error; err != nil {
+			return errs.ErrPostNotFound
+		}
+		if post.UserID != authorID {
+			return errs.ErrNoPermission // 只有作者能审批自己帖子的申请
+		}
+
+		//只有“待处理”的申请能被审批
+		if claim.Status != "待处理" {
+			return errs.ErrStatusInvalid
+		}
+
+		//更新当前申请的状态
+		newStatus := "已拒绝"
+		if approve {
+			newStatus = "已同意"
+		}
+		if err := tx.Model(&claim).Update("status", newStatus).Error; err != nil {
+			return errs.ErrDatabase
+		}
+
+		if approve {
+			//把帖子标记为“已解决”
+			if err := tx.Model(&post).Update("is_resolve", "已解决").Error; err != nil {
+				return errs.ErrDatabase
+			}
+			//把该帖子的其他待处理申请全部拒绝
+			if err := tx.Model(&models.Claim{}).
+				Where("post_id = ? AND claim_id != ? AND status = ?", claim.PostID, claimID, "待处理").
+				Update("status", "已拒绝").Error; err != nil {
+				return errs.ErrDatabase
+			}
+		}
+
+		return nil
+	})
+}
