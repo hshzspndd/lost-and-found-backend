@@ -4,6 +4,7 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/models"
 	"lost-and-found-backend/configs/database"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -148,4 +149,37 @@ func GetStats() (*StatsData, error) {
 		FoundPosts:         postStats.FoundPosts,
 		TotalAnnouncements: announcementStats.TotalAnnouncements,
 	}, nil
+}
+
+// ================================================== 禁言 ==================================================
+
+func MuteUser(userId int, muteSecond int64) error {
+	db := database.DB
+	var user models.User
+	if err := db.First(&user, userId).Error; err != nil {
+		return errs.ErrUserNotFound
+	}
+
+	if muteSecond == 0 { //永久禁言
+		user.IsMuted = true
+		user.MutedUntil = 0
+	} else { // 限时禁言：当前时间 + 持续秒数
+		user.IsMuted = true
+		user.MutedUntil = time.Now().Unix() + muteSecond
+	}
+
+	return errs.ErrDatabase
+}
+
+// UnMuteUser 解除禁言
+func UnMuteUser(userId int) error {
+	db := database.DB
+	var user models.User
+	if err := db.First(&user, userId).Error; err != nil {
+		return errs.ErrUserNotFound
+	}
+
+	user.IsMuted = false
+	user.MutedUntil = 0
+	return errs.ErrDatabase
 }
