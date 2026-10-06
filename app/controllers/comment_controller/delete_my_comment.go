@@ -14,7 +14,7 @@ func DeleteMyComment(c *gin.Context) {
 	commentIDUrl := c.Param("comment_id")
 	commentID, err := strconv.Atoi(commentIDUrl)
 	if err != nil {
-		c.Error(errs.ErrBindJSON)
+		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
 		return
 	}

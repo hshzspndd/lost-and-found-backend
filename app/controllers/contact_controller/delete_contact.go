@@ -14,7 +14,7 @@ func DeleteContact(c *gin.Context) {
 	contactIDUrl := c.Param("contact_id")
 	contactID, err := strconv.Atoi(contactIDUrl)
 	if err != nil {
-		c.Error(errs.ErrBindJSON)
+		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
 		return
 	}
