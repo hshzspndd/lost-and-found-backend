@@ -42,7 +42,6 @@ func Router(c *gin.Engine) {
 		auth.GET("/my/posts", post_controller.GetMyPosts)               //查询自己的帖子
 		auth.DELETE("/my/posts/:post_id", post_controller.DeleteMyPost) //删除我的帖子
 		auth.GET("/posts/:post_id", post_controller.GetPostDetails)     //获取帖子详情
-		auth.PATCH("/posts/:post_id/resolve", post_controller.Resolve)  //帖子的解决与撤销解决
 		auth.PUT("/my/posts/:post_id", post_controller.UpdateMyPost)    //编辑并重新提交帖子
 
 		// ================================== 关于认领 ==================================
