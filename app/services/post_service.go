@@ -330,8 +330,11 @@ func UpdateMyPost(postID int, userID int, title string, eventLocaton string, eve
 		"event_time":     eventTime,
 		"contact":        contact,
 		"description":    description,
-		"image_url":      imageUrl,
 		"status":         "待审核",
+	}
+	// 没传图片则保留原图，避免编辑时把已有图片清空
+	if imageUrl != "" {
+		updateData["image_url"] = imageUrl
 	}
 
 	err = database.DB.Model(&post).Updates(updateData).Error
