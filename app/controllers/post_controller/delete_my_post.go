@@ -11,7 +11,7 @@ import (
 
 // 删除我的帖子
 func DeleteMyPost(c *gin.Context) {
-	postIDUrl := c.Param("contact_id")
+	postIDUrl := c.Param("post_id")
 	postID, err := strconv.Atoi(postIDUrl)
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
