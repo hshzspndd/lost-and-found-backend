@@ -4,18 +4,15 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type DeleteContactRequest struct {
-	ContactID int `json:"contact_id"`
-}
-
 // 删除联系人
 func DeleteContact(c *gin.Context) {
-	var dcr DeleteContactRequest
-	err := c.ShouldBindJSON(&dcr)
+	contactIDUrl := c.Param("contact_id")
+	contactID, err := strconv.Atoi(contactIDUrl)
 	if err != nil {
 		c.Error(errs.ErrBindJSON)
 		c.Abort()
@@ -25,12 +22,12 @@ func DeleteContact(c *gin.Context) {
 	val, _ := c.Get("claims")
 	claims := val.(*utils.Claims)
 
-	err = services.DeleteMyPost(dcr.ContactID, claims.UserID)
+	err = services.DeleteMyPost(contactID, claims.UserID)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
 		return
 	}
 
-	utils.ResponseSuccess(c, "帖子删除成功")
+	utils.ResponseSuccess(c, "联系人删除成功")
 }
