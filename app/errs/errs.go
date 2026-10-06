@@ -46,4 +46,11 @@ var (
 	//================================== 关于公告 ==================================
 
 	ErrAnnouncementNotFound = &ResponseErrorForm{404, 3001, "公告不存在"}
+
+	//================================== 关于认领 ==================================
+
+	ErrPostAlreadyResolved = &ResponseErrorForm{409, 4001, "该物品已被认领/解决"}
+	ErrCannotClaimOwnPost  = &ResponseErrorForm{403, 4002, "不能认领自己发布的帖子"}
+	ErrClaimAlreadyExists  = &ResponseErrorForm{409, 4003, "您已提交过认领申请"}
+	ErrClaimNotFound       = &ResponseErrorForm{404, 4004, "认领申请不存在"}
 )

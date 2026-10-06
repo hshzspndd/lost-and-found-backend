@@ -3,6 +3,7 @@ package router
 import (
 	"lost-and-found-backend/app/controllers/admin_controller"
 	"lost-and-found-backend/app/controllers/announcement_controller"
+	"lost-and-found-backend/app/controllers/claim_controller"
 	"lost-and-found-backend/app/controllers/comment_controller"
 	"lost-and-found-backend/app/controllers/contact_controller"
 	"lost-and-found-backend/app/controllers/post_controller"
@@ -43,6 +44,13 @@ func Router(c *gin.Engine) {
 		auth.GET("/posts/:post_id", post_controller.GetPostDetails)     //获取帖子详情
 		auth.PATCH("/posts/:post_id/resolve", post_controller.Resolve)  //帖子的解决与撤销解决
 		auth.PUT("/my/posts/:post_id", post_controller.UpdateMyPost)    //编辑并重新提交帖子
+
+		// ================================== 关于认领 ==================================
+		auth.POST("/posts/:post_id/claims", claim_controller.CreateClaim)  //提交认领申请
+		auth.DELETE("/claims/:claim_id", claim_controller.CancelClaim)     //撤回认领申请
+		auth.GET("/my/claims", claim_controller.GetMyClaims)               // 我提交的申请
+		auth.GET("/posts/:post_id/claims", claim_controller.GetPostClaims) // 我帖子收到的申请
+		auth.PUT("/claims/:claim_id/audit", claim_controller.AuditClaim)   //处理认领申请
 
 		// ================================== 关于联系人 ==================================
 		auth.POST("/contacts", contact_controller.AddContact)    //添加联系人
