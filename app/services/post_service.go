@@ -156,7 +156,7 @@ func GetMyPosts(userID int, page int, status string, postType string, isResolve 
 }
 
 // 查询帖子详情
-func GetPostDetails(postID int, userID int, role string) (*models.Post, error) {
+func GetPostDetails(postID int, userID int) (*models.Post, error) {
 	var post models.Post
 	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
 	if err != nil {
@@ -167,8 +167,15 @@ func GetPostDetails(postID int, userID int, role string) (*models.Post, error) {
 	}
 
 	if post.Status != "已通过" {
-		// 如果不是“已通过”，只有作者本人和管理员才能看
-		isAdmin := role == "系统管理员" || role == "失物招领管理员"
+		// 实时查库获取最新角色，避免 token 中旧角色在权限变更后继续生效
+		var user models.User
+		if err := database.DB.First(&user, userID).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, errs.ErrUserNotFound
+			}
+			return nil, errs.ErrDatabase
+		}
+		isAdmin := user.Role == "系统管理员" || user.Role == "失物招领管理员"
 		isAuthor := post.UserID == userID
 		if !isAdmin && !isAuthor {
 			return nil, errs.ErrPostNotFound
