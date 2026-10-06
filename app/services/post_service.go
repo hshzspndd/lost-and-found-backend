@@ -212,44 +212,6 @@ func CheckPostExistByPostID(postID int) (bool, error) {
 	return true, nil
 }
 
-// ================================================== 帖子的解决与撤销解决 ==================================================
-
-// 帖子的解决与撤销解决
-func Resolve(postID int, userID int, resolveStatus string) error {
-	var post models.Post
-	err := database.DB.Model(&models.Post{}).Where("post_id = ?", postID).First(&post).Error
-	if err == gorm.ErrRecordNotFound {
-		return errs.ErrPostNotFound
-	}
-	if err != nil {
-		return errs.ErrDatabase
-	}
-
-	if post.UserID != userID {
-		return errs.ErrIsNotYourPost //防止更改他人的
-	}
-	if post.Status != "已通过" {
-		return errs.ErrStatusInvalid //防止更改未通过审核的
-	}
-	if post.IsResolve == resolveStatus {
-		return nil
-	}
-
-	err = database.DB.Model(&post).Update("is_resolve", resolveStatus).Error
-	if err != nil {
-		return errs.ErrDatabase
-	}
-	if resolveStatus == "已解决" {
-		// 帖子解决后，把该帖子的待处理认领申请全部拒绝，避免申请悬挂
-		if err := database.DB.Model(&models.Claim{}).
-			Where("post_id = ? AND status = ?", postID, "待处理").
-			Update("status", "已拒绝").Error; err != nil {
-			return errs.ErrDatabase
-		}
-	}
-	return nil
-}
-
 // ================================================== 管理员查询所有帖子 ==================================================
 
 func AdminGetAllPosts(page int, postType string, status string, isResolve string, pageSize int) ([]models.Post, int, error) {
