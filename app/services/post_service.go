@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // ================================================== 上传图片 ==================================================
@@ -269,27 +270,27 @@ func AdminGetAllPosts(page int, postType string, status string, isResolve string
 
 // 审核帖子
 func AuditPost(postID int, status string) error {
-	// 查帖子
-	var post models.Post
-	err := database.DB.First(&post, postID).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return errs.ErrPostNotFound // 帖子不存在
+	// 事务内行锁锁定帖子，防止双管理员并发审核同一帖时后写覆盖
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		var post models.Post
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&post, postID).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return errs.ErrPostNotFound // 帖子不存在
+			}
+			return errs.ErrDatabase // 数据库错误
 		}
-		return errs.ErrDatabase // 数据库错误
-	}
 
-	if post.Status != "待审核" {
-		return errs.ErrStatusInvalid
-	}
+		if post.Status != "待审核" {
+			return errs.ErrStatusInvalid
+		}
 
-	// 执行更新
-	err = database.DB.Model(&post).Update("status", status).Error
-	if err != nil {
-		return errs.ErrDatabase
-	}
-
-	return nil
+		err = tx.Model(&post).Update("status", status).Error
+		if err != nil {
+			return errs.ErrDatabase
+		}
+		return nil
+	})
 }
 
 // ================================================== 管理员删除帖子 ==================================================
