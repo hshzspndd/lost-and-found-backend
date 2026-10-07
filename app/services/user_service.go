@@ -6,6 +6,7 @@ import (
 	"lost-and-found-backend/app/utils"
 	"lost-and-found-backend/configs/config"
 	"lost-and-found-backend/configs/database"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -136,6 +137,17 @@ func GetProfile(userID int) (*models.User, error) {
 	}
 	if err != nil {
 		return nil, errs.ErrDatabase
+	}
+
+	// 限时禁言已到期：自动复位禁言状态，避免 is_muted 残留脏数据。
+	// 复位带条件：只有禁言仍处于过期状态才清除，防止并发下误清新下的禁言
+	if user.IsMuted && user.MutedUntil != 0 && user.MutedUntil <= time.Now().Unix() {
+		res := database.DB.Model(&models.User{}).
+			Where("user_id = ? AND muted_until != 0 AND muted_until <= ?", userID, time.Now().Unix()).
+			Updates(map[string]interface{}{"is_muted": false, "muted_until": 0})
+		if res.Error != nil {
+			return nil, errs.ErrDatabase
+		}
 	}
 
 	return &user, nil
