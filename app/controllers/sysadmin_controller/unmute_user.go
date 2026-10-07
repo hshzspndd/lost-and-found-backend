@@ -24,5 +24,5 @@ func UnMuteUser(c *gin.Context) {
 		return
 	}
 
-	utils.ResponseSuccess(c, "操作成功")
+	utils.ResponseSuccess(c, nil)
 }
