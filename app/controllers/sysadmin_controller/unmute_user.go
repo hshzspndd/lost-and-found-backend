@@ -4,25 +4,20 @@ import (
 	"lost-and-found-backend/app/errs"
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type UnUserService struct {
-	UserID int `json:"user_id" binding:"required"`
-}
-
 func UnMuteUser(c *gin.Context) {
-
-	var umt UnUserService
-	err := c.ShouldBindJSON(&umt)
+	userID, err := strconv.Atoi(c.Param("user_id"))
 	if err != nil {
-		c.Error(errs.ErrBindJSON)
+		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
 		return
 	}
 
-	err = services.UnMuteUser(umt.UserID)
+	err = services.UnMuteUser(userID)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
