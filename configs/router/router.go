@@ -25,7 +25,7 @@ func Router(c *gin.Engine) {
 		api.POST("/login", user_controller.Login)                           //登录
 		api.GET("/posts", post_controller.GetAllPosts)                      //获取公开帖子列表
 		api.GET("/posts/:post_id/comments", comment_controller.GetComments) //获取评论
-		api.GET("/posts/:post_id", post_controller.GetPostDetails)          //获取帖子详情
+		api.GET("/posts/:post_id", middlewares.OptionalParseJwt(), post_controller.GetPostDetails) //获取帖子详情
 		api.GET("/announcements", announcement_controller.GetAnnouncements) //获取公告
 
 	}

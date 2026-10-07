@@ -38,3 +38,25 @@ func ParseJwt() gin.HandlerFunc {
 		c.Next()
 	}
 }
+func OptionalParseJwt() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authorization := c.GetHeader("Authorization")
+		authorizationList := strings.SplitN(authorization, " ", 2)
+		if len(authorizationList) != 2 || authorizationList[0] != "Bearer" {
+			c.Next()
+			return
+		}
+		token, err := jwt.ParseWithClaims(authorizationList[1], &utils.Claims{}, func(t *jwt.Token) (any, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, errors.New("unexpected signing method")
+			}
+			return []byte(config.Config.GetString("jwt.key")), nil
+		})
+		if err != nil || !token.Valid {
+			c.Next()
+			return
+		}
+		c.Set("claims", token.Claims)
+		c.Next()
+	}
+}
