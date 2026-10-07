@@ -154,21 +154,28 @@ func GetStats() (*StatsData, error) {
 // ================================================== 禁言 ==================================================
 
 func MuteUser(userId int, muteSecond int64) error {
-	db := database.DB
+	// 禁言时长不能为负数：负数会产生 is_muted=true 但已过期的假禁言脏状态
+	if muteSecond < 0 {
+		return errs.ErrInvalidQuery
+	}
+
 	var user models.User
-	if err := db.First(&user, userId).Error; err != nil {
-		return errs.ErrUserNotFound
+	if err := database.DB.First(&user, userId).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errs.ErrUserNotFound
+		}
+		return errs.ErrDatabase
 	}
 
+	updates := map[string]interface{}{"is_muted": true}
 	if muteSecond == 0 { //永久禁言
-		user.IsMuted = true
-		user.MutedUntil = 0
+		updates["muted_until"] = 0
 	} else { // 限时禁言：当前时间 + 持续秒数
-		user.IsMuted = true
-		user.MutedUntil = time.Now().Unix() + muteSecond
+		updates["muted_until"] = time.Now().Unix() + muteSecond
 	}
 
-	err := db.Save(&user).Error
+	// 只更新禁言相关字段，避免整行覆盖并发修改的其他字段
+	err := database.DB.Model(&models.User{}).Where("user_id = ?", userId).Updates(updates).Error
 	if err != nil {
 		return errs.ErrDatabase
 	}
@@ -177,16 +184,17 @@ func MuteUser(userId int, muteSecond int64) error {
 
 // UnMuteUser 解除禁言
 func UnMuteUser(userId int) error {
-	db := database.DB
 	var user models.User
-	if err := db.First(&user, userId).Error; err != nil {
-		return errs.ErrUserNotFound
+	if err := database.DB.First(&user, userId).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errs.ErrUserNotFound
+		}
+		return errs.ErrDatabase
 	}
 
-	user.IsMuted = false
-	user.MutedUntil = 0
-
-	err := db.Save(&user).Error
+	// 只更新禁言相关字段，避免整行覆盖并发修改的其他字段
+	err := database.DB.Model(&models.User{}).Where("user_id = ?", userId).
+		Updates(map[string]interface{}{"is_muted": false, "muted_until": 0}).Error
 	if err != nil {
 		return errs.ErrDatabase
 	}

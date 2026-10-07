@@ -4,6 +4,7 @@ import (
 	"lost-and-found-backend/app/services"
 	"lost-and-found-backend/app/utils"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +14,7 @@ type UserListResp struct {
 	Username string `json:"username"`
 	PhoneNum string `json:"phone_num"`
 	Role     string `json:"role"`
+	IsMuted  bool   `json:"is_muted"`
 }
 
 type UsersResp struct {
@@ -45,11 +47,16 @@ func GetUsers(c *gin.Context) {
 
 	userListResp := make([]UserListResp, 0, len(userList))
 	for _, user := range userList {
+		isMuted := user.IsMuted
+		if isMuted && user.MutedUntil != 0 && user.MutedUntil <= time.Now().Unix() {
+			isMuted = false
+		}
 		userListResp = append(userListResp, UserListResp{
 			UserID:   user.UserID,
 			Username: user.Username,
 			PhoneNum: user.PhoneNum,
 			Role:     user.Role,
+			IsMuted:  isMuted,
 		})
 	}
 

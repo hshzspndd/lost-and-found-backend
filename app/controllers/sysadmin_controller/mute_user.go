@@ -20,18 +20,24 @@ func MuteUser(c *gin.Context) {
 		return
 	}
 
-	muteSecomd, err := strconv.Atoi(c.Param("mute_second"))
+	muteSecond, err := strconv.Atoi(c.Param("mute_second"))
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
 		return
 	}
-	err = services.MuteUser(userID, int64(muteSecomd))
+	// 禁言时长不能为负数
+	if muteSecond < 0 {
+		c.Error(errs.ErrInvalidQuery)
+		c.Abort()
+		return
+	}
+	err = services.MuteUser(userID, int64(muteSecond))
 	if err != nil {
 		c.Error(err)
 		c.Abort()
 		return
 	}
 
-	utils.ResponseSuccess(c, "操作成功")
+	utils.ResponseSuccess(c, nil)
 }
