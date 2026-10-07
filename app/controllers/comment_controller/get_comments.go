@@ -16,6 +16,7 @@ type CommentListResp struct {
 	UserID    int       `json:"user_id"`
 	Content   string    `json:"content"`
 	CreatedAt time.Time `json:"created_at"`
+	Username  string    `json:"username"`
 }
 
 type CommentsResp struct {
@@ -41,7 +42,7 @@ func GetComments(c *gin.Context) {
 		return
 	}
 
-	commentList, total, err := services.GetComments(page, postID, pageSize)
+	commentList, userNameMap, total, err := services.GetComments(page, postID, pageSize)
 	if err != nil {
 		c.Error(err)
 		c.Abort()
@@ -50,12 +51,14 @@ func GetComments(c *gin.Context) {
 
 	commentListResp := make([]CommentListResp, 0, len(commentList))
 	for _, comment := range commentList {
+		username := userNameMap[comment.UserID]
 		commentListResp = append(commentListResp, CommentListResp{
 			CommentID: comment.CommentID,
 			PostID:    comment.PostID,
 			UserID:    comment.UserID,
 			Content:   comment.Content,
 			CreatedAt: comment.CreatedAt,
+			Username:  username,
 		})
 	}
 

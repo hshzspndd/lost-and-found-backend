@@ -40,7 +40,7 @@ func CreateComment(postID, userID int, content string) (*models.Comment, error) 
 
 // ================================================== 获取评论 ==================================================
 
-func GetComments(page, postID int, pageSize int) ([]models.Comment, int, error) {
+func GetComments(page, postID int, pageSize int) ([]models.Comment, map[int]string, int, error) {
 	var total int64
 
 	comments := make([]models.Comment, 0)
@@ -50,17 +50,45 @@ func GetComments(page, postID int, pageSize int) ([]models.Comment, int, error) 
 	//获取评论总数
 	err := query.Count(&total).Error
 	if err != nil {
-		return nil, 0, errs.ErrDatabase
+		return nil, nil, 0, errs.ErrDatabase
 	}
 	offset := (page - 1) * pageSize
 
 	//分页查询
 	err = query.Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&comments).Error
 	if err != nil {
-		return nil, 0, errs.ErrDatabase
+		return nil, nil, 0, errs.ErrDatabase
 	}
 
-	return comments, int(total), nil
+	// 收集全部userID，去重
+	userIDs := make([]int, 0)
+	existMap := make(map[int]bool)
+	for _, c := range comments {
+		if !existMap[c.UserID] {
+			existMap[c.UserID] = true
+			userIDs = append(userIDs, c.UserID)
+		}
+	}
+	// 没有评论用户，直接返回空map
+	userNameMap := make(map[int]string)
+	if len(userIDs) == 0 {
+		return comments, userNameMap, int(total), nil
+	}
+	// 批量查询，一次性拿所有username
+	type mpUser struct {
+		UserID   int
+		Username string
+	}
+	var users []mpUser
+	err = database.DB.Model(&models.User{}).Select("user_id, username").Where("user_id IN ?", userIDs).Scan(&users).Error
+	if err != nil {
+		return nil, nil, 0, errs.ErrDatabase
+	}
+
+	for _, u := range users {
+		userNameMap[u.UserID] = u.Username
+	}
+	return comments, userNameMap, int(total), nil
 }
 
 // ================================================== 删除评论 ==================================================
