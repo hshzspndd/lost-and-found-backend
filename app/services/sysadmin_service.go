@@ -168,7 +168,11 @@ func MuteUser(userId int, muteSecond int64) error {
 		user.MutedUntil = time.Now().Unix() + muteSecond
 	}
 
-	return errs.ErrDatabase
+	err := db.Save(&user).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+	return nil
 }
 
 // UnMuteUser 解除禁言
@@ -181,5 +185,10 @@ func UnMuteUser(userId int) error {
 
 	user.IsMuted = false
 	user.MutedUntil = 0
-	return errs.ErrDatabase
+
+	err := db.Save(&user).Error
+	if err != nil {
+		return errs.ErrDatabase
+	}
+	return nil
 }

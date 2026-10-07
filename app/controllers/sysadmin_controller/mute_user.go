@@ -20,7 +20,7 @@ func MuteUser(c *gin.Context) {
 		return
 	}
 
-	muteSecomd, err := strconv.Atoi(c.Param("mute_secomd"))
+	muteSecomd, err := strconv.Atoi(c.Param("mute_second"))
 	if err != nil {
 		c.Error(errs.ErrInvalidQuery)
 		c.Abort()
