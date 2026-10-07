@@ -33,10 +33,14 @@ func GetPostDetails(c *gin.Context) {
 		return
 	}
 
-	val, _ := c.Get("claims")
-	claims := val.(*utils.Claims)
+	// 详情接口已公开：未登录时无 claims，userID 默认为 0，只能查看已通过帖子
+	var userID int
+	if val, exists := c.Get("claims"); exists {
+		claims := val.(*utils.Claims)
+		userID = claims.UserID
+	}
 
-	post, err := services.GetPostDetails(postID, claims.UserID)
+	post, err := services.GetPostDetails(postID, userID)
 	if err != nil {
 		c.Error(err)
 		c.Abort()

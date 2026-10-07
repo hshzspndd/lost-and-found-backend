@@ -167,6 +167,10 @@ func GetPostDetails(postID int, userID int) (*models.Post, error) {
 	}
 
 	if post.Status != "已通过" {
+		// 只能查看已通过帖子，未审核/已驳回帖子对游客隐藏
+		if userID == 0 {
+			return nil, errs.ErrPostNotFound
+		}
 		// 实时查库获取最新角色，避免 token 中旧角色在权限变更后继续生效
 		var user models.User
 		if err := database.DB.First(&user, userID).Error; err != nil {
